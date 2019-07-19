@@ -1,0 +1,523 @@
+@import "paleta.scss";
+
+html {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+    font-family: "arial"source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
+}
+
+h1,
+h2 {
+    color: $Color-blue;
+}
+
+.rowLogin {
+    margin-top: 100px !important;
+}
+
+.cardLogin {
+    min-height: 420px !important;
+}
+
+.titulo {
+    font-weight: bold !important;
+    font-size: 3em;
+}
+
+.olvidoClave {
+    margin-left: 40px !important;
+    color: $Color-blue;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.mb-2,
+.my-2 {
+    margin-bottom: .9rem !important;
+}
+
+
+a,
+a:hover,
+a:focus {
+    color: inherit;
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+.navbar {
+    padding: 15px 10px;
+    background: $Color-blue !important;
+    border: none;
+    border-radius: 0;
+    margin-bottom: 40px;
+    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-btn {
+    box-shadow: none;
+    outline: none !important;
+    border: none;
+}
+
+.line {
+    width: 100%;
+    height: 1px;
+    border-bottom: 1px dashed #ddd;
+    margin: 40px 0;
+}
+
+/* ---------------------------------------------------
+    SIDEBAR STYLE
+----------------------------------------------------- */
+
+.wrapper {
+    display: flex;
+    width: 100%;
+    align-items: stretch;
+}
+
+#sidebar {
+    min-width: 250px;
+    max-width: 250px;
+    background: white !important;
+    box-shadow: 2px 0px 5px rgba(0, 0, 0, 0.5);
+    color: $Color-blue;
+    transition: all 0.3s;
+    z-index: 200;
+    width: 100%;
+    min-height: 400px;
+}
+
+#sidebar.active {
+    margin-left: -250px;
+}
+
+#sidebar .sidebar-header {
+    padding: 33px;
+    background: $Color-blue !important;
+    text-align: center;
+}
+
+#sidebar ul.components {
+    padding: 20px 0;
+
+}
+
+#sidebar ul p {
+    color: black;
+    padding: 10px;
+}
+
+#sidebar ul li a {
+    padding: 10px;
+    font-size: 1em;
+    display: block;
+    color: $Color-blue;
+}
+
+#sidebar ul li a:hover {
+    background: white;
+}
+
+.iconMenu {
+    margin-left: 10px;
+}
+
+#sidebar ul li.active>a,
+a[aria-expanded="true"] {
+    color: $Color-blue;
+    background: white;
+}
+
+a[data-toggle="collapse"] {
+    position: relative;
+}
+
+.dropdown-toggle::after {
+    display: block;
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+}
+
+ul ul a {
+    font-size: 0.9em !important;
+    padding-left: 30px !important;
+    background: white;
+
+}
+
+ul.CTAs {
+    padding: 20px;
+}
+
+ul.CTAs a {
+    text-align: center;
+    font-size: 0.9em !important;
+    display: block;
+    border-radius: 5px;
+    margin-bottom: 5px;
+}
+
+a.download {
+    background: #fff;
+    background: $Color-blue !important;
+}
+
+a.article,
+a.article:hover {
+    background: $Color-blue !important;
+    color: #fff !important;
+}
+
+.searchInput {
+    position: absolute;
+    right: 0;
+}
+
+/* ---------------------------------------------------
+    CONTENT STYLE
+----------------------------------------------------- */
+
+#content {
+    width: 100%;
+    padding: 0px;
+    min-height: 100vh;
+    transition: all 0.3s;
+}
+
+.btnToggle {
+    background: $Color-blue !important;
+    border: none;
+
+    :hover {
+        border: none;
+    }
+
+    :active {
+        border: none;
+    }
+}
+
+.listComponent {
+    background-color: white;
+    color: $Color-blue;
+}
+
+.InicioParrafo {
+    color: $Color-blue !important;
+
+    svg {
+        padding: 0px;
+    }
+}
+
+.busqueda {
+    width: 90%;
+}
+
+/* ---------------------------------------------------
+    PANELS COMPONENT
+----------------------------------------------------- */
+
+[data-panel='containerAvatar'] {
+
+    .card,
+    .card-header,
+    .card-body,
+    .card-footer {
+        text-align: center;
+        background-color: white;
+
+        .nameAvatar {
+            font-size: 23px;
+            font-weight: bold;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .puestoAvatar {
+            font-size: 14px;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .ubicacionAvatar {
+            font-size: 14px;
+            font-family: Arial, Helvetica, sans-serif;
+            font-weight: 400;
+        }
+
+        #titleAvatar {
+            text-align: left;
+        }
+
+        .editarBtn {
+            text-align: right;
+        }
+
+        .InfoLocationAvatar {
+            padding-left: 15px;
+            font-size: 23px;
+            font-family: Arial, Helvetica, sans-serif;
+            font-weight: bold;
+        }
+
+        .infoCreacion {
+            font-size: 16px;
+            font-family: Arial, Helvetica, sans-serif;
+            font-weight: normal;
+        }
+
+        .rowInfoAvatar {
+            padding-left: 15px;
+        }
+
+        .rowData {
+            color: $Color-blue;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .rowDataTitle {
+            color: black;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 12px;
+            font-weight: bold;
+            padding-left: 12px;
+        }
+
+        .marginRowData {
+            margin-top: 5px;
+        }
+
+        .avatarporcentage {
+            font-family: Arial, Helvetica, sans-serif;
+            font-weight: bold;
+            padding-left: 5px;
+        }
+    }
+
+    #imgAvatar {
+        text-align: center !important;
+    }
+
+}
+
+[data-panel='containerGroups'] {
+
+    .card,
+    .card-header,
+    .card-body,
+    .card-footer {
+        text-align: center;
+        background-color: white;
+
+    }
+
+    .card-header {
+        text-align: left;
+
+        h2 {
+            padding-left: 30px;
+            font-weight: bold;
+        }
+    }
+
+    .toolBarBtns {
+        text-align: left !important;
+        padding-right: 5px;
+    }
+
+    .btncog,
+    .btnfilter {
+        color: $Color-blue !important;
+        font-size: 1em;
+    }
+
+    .btnTodos {
+        color: black;
+        font-size: 1em;
+
+    }
+
+    .textTitleFilter {
+        font-family: Arial, Helvetica, sans-serif;
+        margin-right: 5px;
+        font-weight: bold;
+    }
+}
+
+[data-panel='containerUsers'] {
+
+    .card,
+    .card-header,
+    .card-body,
+    .card-footer {
+        text-align: center;
+        background-color: white;
+
+    }
+
+    .card-header {
+        text-align: left;
+
+        h2 {
+            padding-left: 30px;
+            font-weight: bold;
+        }
+    }
+
+    .toolBarBtns {
+        text-align: left !important;
+        padding-right: 5px;
+    }
+
+    .btncog,
+    .btnfilter {
+        color: $Color-blue !important;
+        font-size: 1em;
+    }
+
+    .btnTodos {
+        color: black;
+        font-size: 1em;
+
+    }
+
+    .textTitleFilter {
+        font-family: Arial, Helvetica, sans-serif;
+        margin-right: 5px;
+        font-weight: bold;
+    }
+}
+
+[data-panel='containerRoles'] {
+
+    .card,
+    .card-header,
+    .card-body,
+    .card-footer {
+        text-align: center;
+        background-color: white;
+
+    }
+
+    .card-header {
+        text-align: left;
+
+        h2 {
+            padding-left: 30px;
+        }
+    }
+
+}
+
+
+
+/* ---------------------------------------------------
+    MEDIAQUERIES
+----------------------------------------------------- */
+
+@media (max-width: 768px) {
+    #sidebar {
+        margin-left: -250px;
+    }
+
+    #sidebar.active {
+        margin-left: 0;
+    }
+
+    #sidebarCollapse span {
+        display: none;
+    }
+}
+
+.base-table {
+    border: none;
+    border-right: solid 1px #DDEFEF;
+    border-collapse: separate;
+    border-spacing: 0;
+    font: normal 13px Arial, sans-serif;
+}
+
+.base-table thead th {
+    border: none;
+    padding: 10px;
+    font-weight: bold;
+    text-shadow: none;
+    white-space: nowrap;
+}
+
+.base-table tbody td {
+    border-bottom: solid 1px #DDEFEF;
+    color: #333;
+    padding: 10px;
+    text-shadow: 1px 1px 1px #fff;
+    white-space: nowrap;
+}
+
+
+.btnModalFoters {
+    text-align: center;
+}
+
+.navegacionItem {
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    color: $Color-blue !important;
+}
+
+.breadcrumb {
+    background-color: transparent !important;
+}
+
+.colDispo,
+.colSelect {
+    text-align: center;
+    padding-top: 8px;
+    color: white;
+    background-color: $Color-blue !important;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+
+}
+
+.bodyDispo,
+.bodySelect {
+    min-height: 100vh;
+}
+
+
+.list-group-item {
+    cursor: pointer !important;
+
+    :hover {
+        background-color: $Color-blue !important;
+    }
+}
+
+
+#listModal .list-group-item:hover {
+    background-color: $Color-blue !important;
+    color: white;
+}
+
+.btnArrow {
+    font-size: 1em;
+    margin-right: 10px;
+}
+
+.btnTitle {
+    margin-right: 10px;
+}
