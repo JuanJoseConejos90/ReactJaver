@@ -23,7 +23,6 @@ const doFilter = (item, filter) => {
 
     }
 
-
     return response;
 }
 
