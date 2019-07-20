@@ -35,12 +35,10 @@ class usuarios extends Component {
             { name: "Notempty", value: "Notempty" }, { name: "greater or equal", value: "greater or equal" }, { name: "less or equal", value: "less or equal" }],
             filters: [{ property: "firstName", value: "A", operador: "startWith" }, { property: "state", value: "I", operador: "Is" }],
             filterSearch: [],
-            filterCreated: [{ property: "", value: "", operador: "" }],
-            filtrosDinamicos: [{ name: "", age: "" }],
+            filterSettings: [{ property: "", value: "", operador: "" }],
+            filterCount: 0,
+            filterCreated: 1,
             buscar: '',
-            filterOperador: '',
-            filterColum: '',
-            filterValue: '',
             colapse: false,
             showModal: false,
             alert: false,
@@ -50,8 +48,6 @@ class usuarios extends Component {
             modulo: 'Gestión Usuarios',
             componente: 'Usuarios'
         };
-
-
 
         this.handleChange = this.handleChange.bind(this);
         this.colapseFilter = this.colapseFilter.bind(this);
@@ -65,6 +61,7 @@ class usuarios extends Component {
         this.handleChangeValue = this.handleChangeValue.bind(this);
         this.runFilter = this.runFilter.bind(this);
         this.loadData = this.loadData.bind(this);
+        this.deleteFilter = this.deleteFilter.bind(this);
     }
 
 
@@ -150,6 +147,7 @@ class usuarios extends Component {
                         this.setState({ users: data.users });
                         this.getItemHeader(data.users[0]);
                         this.getOptionsModal(data.users[0]);
+                        this.countFilter();
                         Progress.hide();
                     }
                 })
@@ -180,6 +178,18 @@ class usuarios extends Component {
             console.log(error)
         }
 
+    }
+
+    countFilter() {
+
+        try {
+            if (this.state.users.length > 0) {
+                let counter = Object.keys(this.state.users[0]);
+                this.setState({ filterCount: counter.length });
+            }
+        } catch (error) {
+            console.log(error)
+        }
     }
 
     renderTableData() {
@@ -350,16 +360,49 @@ class usuarios extends Component {
         }
     }
 
-    handleChangeSelectOperador = (event) => {
-        this.setState({ filterOperador: event.target.value });
+    handleChangeSelectColumn = (event) => {
+
+        try {
+
+            const { filterSettings } = this.state;
+            let index = event.target.dataset.index;
+            filterSettings[index].property = event.target.value;
+            this.setState({ filterSettings });
+
+        } catch (error) {
+            console.log(error)
+        }
+
     };
 
-    handleChangeSelectColumn = (event) => {
-        this.setState({ filterColum: event.target.value });
+    handleChangeSelectOperador = (event) => {
+
+        try {
+
+            const { filterSettings } = this.state;
+            let index = event.target.dataset.index;
+            filterSettings[index].operador = event.target.value;
+            this.setState({ filterSettings });
+
+        } catch (error) {
+            console.log(error)
+        }
+
     };
 
     handleChangeValue = (event) => {
-        this.setState({ filterValue: event.target.value.toUpperCase() });
+
+        try {
+
+            const { filterSettings } = this.state;
+            let index = event.target.dataset.index;
+            filterSettings[index].value = event.target.value;
+            this.setState({ filterSettings });
+
+        } catch (error) {
+            console.log(error);
+        }
+
     };
 
     async runFilter(event) {
@@ -378,15 +421,16 @@ class usuarios extends Component {
                     var filterOperador = this.state.filterOperador;
                     var filterValue = this.state.filterValue;
                     let array = [];
-                    if (filtercolum !== "" && filterOperador !== "" && filterValue !== "") {
-                        var filtersValuesJSON = { property: filtercolum, value: filterValue, operador: filterOperador };
-                        array.push(filtersValuesJSON);
-                        await this.setState({ filterSearch: array });
-                        const { filterSearch } = this.state;
-                        datos = datos.filter(createFilter(...filterSearch));
-                        this.setState({ users: datos });
+                    var filtersValuesJSON = { property: filtercolum, value: filterValue, operador: filterOperador };
+                    array.push(filtersValuesJSON);
+                    var filtersCreated = this.state.filterSettings;
+                    await this.setState({ filterSearch: filtersCreated });
+                    const { filterSearch } = this.state;
+                    const {filterSettings} = this.state;
+                    datos = datos.filter(createFilter(...filterSettings));
+                    this.setState({ users: datos });
 
-                    }
+
 
                     Progress.hide();
 
@@ -414,9 +458,10 @@ class usuarios extends Component {
                     .then(response => response.data)
                     .then((data) => {
                         if (data.code === 0) {
-                            this.setState({ users: data.users });
+                            this.setState({ users: data.users, filterCount: 0, filterCreated: 0 });
                             this.getItemHeader(data.users[0]);
                             this.getOptionsModal(data.users[0]);
+                            this.countFilter();
                             Progress.hide();
                         }
                     })
@@ -434,34 +479,42 @@ class usuarios extends Component {
 
     };
 
-    renderFilter() {
+   
+    renderFilterDynamic() {
         try {
 
             return (
-                <Form>
-                    <Row>
-                        <Col>
-                            <Form.Control as="select" onChange={this.handleChangeSelectColumn} value={this.state.filterColum}>
-                                {this.renderListOptions()}
-                            </Form.Control>
-                        </Col>
-                        <Col>
-                            <Form.Control as="select" onChange={this.handleChangeSelectOperador} value={this.state.filterOperador}>
-                                {this.renderFilterOptions()}
-                            </Form.Control>
-                        </Col>
-                        <Col>
-                            <Form.Control placeholder="filtro" onChange={this.handleChangeValue} value={this.state.filterValue} />
-                        </Col>
-                        <Col>
-                            <ButtonToolbar>
-                                <Button variant="light" size="sm" className="btnTodos">AND</Button>
-                                <Button variant="light" size="sm" className="btnTodos">OR</Button>
-                                <Button variant="light" size="sm" className="btnTodos">X</Button>
-                            </ButtonToolbar>
-                        </Col>
-                    </Row>
-                </Form>
+                this.state.filterSettings.map((filter, index) => {
+                    let propertyId = `property-${index}`, operadorId = `operador-${index}`, valueId = `value-${index}`
+                    return <div className="row FilterCreated" id={index}>
+                        <Form id={index}>
+                            <Row id={index}>
+                                <Col>
+                                    <Form.Control as="select" id={propertyId} data-index={index} className="property" onChange={this.handleChangeSelectColumn} value={filter.property}>
+                                        {this.renderListOptions()}
+                                    </Form.Control>
+                                </Col>
+                                <Col>
+                                    <Form.Control as="select" id={operadorId} data-index={index} className="operador" onChange={this.handleChangeSelectOperador} value={filter.operador}>
+                                        {this.renderFilterOptions()}
+                                    </Form.Control>
+                                </Col>
+                                <Col>
+                                    <Form.Control placeholder="filtro" id={valueId} data-index={index} className="operador" onChange={this.handleChangeValue} value={filter.value} />
+                                </Col>
+                                <Col>
+                                    <ButtonToolbar>
+                                        <Button  variant="light" size="sm" className="btnTodos" onClick={this.addfilter}>AND</Button>
+                                        <Button  variant="light" size="sm" className="btnTodos" onClick={this.addfilter}>OR</Button>
+                                        <Button  variant="light" size="sm" className="btnTodos" onClick={() => this.deleteFilter(index)}>X</Button>
+                                    </ButtonToolbar>
+                                </Col>
+                            </Row>
+                        </Form>
+
+                    </div>
+                })
+
             )
 
         } catch (error) {
@@ -469,18 +522,64 @@ class usuarios extends Component {
         }
     }
 
+    addfilter = (event) => {
+
+        try {
+
+            event.preventDefault();
+
+            if (this.state.filterCreated <= this.state.filterCount) {
+                this.setState((prevState) => ({
+                    filterSettings: [...prevState.filterSettings, { property: "", value: "", operador: "" }],
+                }));
+                let count = this.state.filterCreated + 1;
+                this.setState({ filterCreated: count });
+            } else {
+                this.setState({ alert: true, msg: 'El número de filtros no puede exceder lo permitido' });
+            }
+
+        } catch (error) {
+            console.log(error);
+        }
+
+
+    }
+
+    deleteFilter(index) {
+
+        try {
+
+            const { filterSettings } = this.state;
+
+            if (filterSettings.length > 1) {
+                filterSettings.splice(index, 1);
+                let countLess = this.state.filterCreated - 1;
+                this.setState({ filterSettings });
+                this.setState({ filterCreated: countLess });
+
+            } else {
+                this.setState({ alert: true, msg: 'Debe de existir al menos un filtro' });
+            }
+
+
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
     render() {
         return (
-            <div className="container-fluid" data-panel="containerUsers">
+            <div className="container-fluid" data-panel="containerUsers" id="PanelContainer">
                 <div className="row">
                     <div className="col-12">
                         <Breadcrum inicio={this.state.inicio} modulo={this.state.modulo} componente={this.state.componente} />
                     </div>
                     <div className="col-12">
                         <div className="card">
-                            <div className="card-header">
+                            <div className="card-header tittleContent">
                                 <div className="row">
-                                    <div className="col-8">
+                                    <div className="col-9">
                                         <h2>Usuarios</h2>
                                     </div>
                                     <div className="col-2">
@@ -498,7 +597,7 @@ class usuarios extends Component {
                                             </InputGroup.Prepend>
                                         </InputGroup>
                                     </div>
-                                    <div className="col-2">
+                                    <div className="col-1">
                                         <button className="btn btn-primary">Nuevo</button>
                                     </div>
                                 </div>
@@ -530,18 +629,16 @@ class usuarios extends Component {
                                                         <div className="row">
                                                             <p className="textTitleFilter">All of these conditions must be met</p>
                                                         </div>
-                                                        <div className="row">
-                                                            {this.renderFilter()}
-                                                        </div>
+                                                        {this.renderFilterDynamic()}
                                                     </div>
                                                 </div>
                                             </div>
                                         </Collapse>
                                     </div>
                                 </div>
-                                <table ref={this.table} className="table table-striped base-table">
+                                <table ref={this.table} className="table table-striped base-table" key="tableUser">
                                     <thead>
-                                        <tr>{this.renderTableHeader()}</tr>
+                                        <tr key="thTable">{this.renderTableHeader()}</tr>
                                     </thead>
                                     <tbody ref={this.body}>
                                         {this.renderTableData()}

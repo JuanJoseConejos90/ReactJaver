@@ -386,6 +386,7 @@ a.article:hover {
     .btncog,
     .btnfilter {
         color: $Color-blue !important;
+        cursor: pointer !important;
         font-size: 1em;
     }
 
@@ -399,6 +400,15 @@ a.article:hover {
         font-family: Arial, Helvetica, sans-serif;
         margin-right: 5px;
         font-weight: bold;
+    }
+
+    .FilterCreated {
+        margin-top: 5px;
+    }
+
+    .tittleContent {
+        position: relative;
+        transform: translateY(20%);
     }
 }
 

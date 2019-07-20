@@ -20,6 +20,8 @@ const doFilter = (item, filter) => {
         case "Notcontain":
             response = !item[property].includes(value);
             break;
+        default:
+            break;
 
     }
 
