@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 export const userService = {
-    login, getUser, getgroups, getrols,getusers,
-    getQueryRolFilter, getQueryUserFilter
+    login, getUser, getgroups, getrols, getusers,
+    getQueryRolFilter, getQueryUserFilter, getFilterbyDataType
 };
 async function login(username, password) {
 
@@ -63,6 +63,17 @@ async function getQueryUserFilter(query) {
     return await axios.post(url, data, axiosConfig);
 }
 
-
+async function getFilterbyDataType(typeData) {
+    const url = `api/Utils/getFilterbyDataType`;
+    let axiosConfig = {
+        headers: {
+            'Content-Type': 'application/json;charset=UTF-8',
+            'Access-Control-Allow-Origin': '*',
+            'Authorization': localStorage.getItem('token')
+        }
+    };
+    const data = { typeData: typeData };
+    return await axios.post(url, data, axiosConfig);
+}
 
 

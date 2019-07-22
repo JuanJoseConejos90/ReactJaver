@@ -56,6 +56,7 @@ class login extends Component {
                 }
             })
             .catch((err) => {
+                Progress.hide();
                 console.log(err);
             });
 

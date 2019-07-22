@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { BrowserRouter as Router, Link, Route } from 'react-router-dom';
 import usuarios from './../usuarios/usuarios';
 import usuarioInfo from './../usuarios/usuarioInfo';
+import crearUsuario from './../usuarios/crearUsuario';
 import roles from './../roles/roles';
 import companias from './../companias/companias';
 import grupos from './../grupos/grupos';
@@ -159,6 +160,7 @@ class home extends Component {
                     </nav>
                     <PrivateRoute exact path="/usuarioInfo" component={usuarioInfo} />
                     <PrivateRoute exact path="/usuarios" component={usuarios} />
+                    <PrivateRoute exact path="/crearUsuario" component={crearUsuario} />
                     <Route path="/grupos" component={grupos} />
                     <Route path="/roles" component={roles} />
                     <Route path="/departamentos" component={departamentos} />

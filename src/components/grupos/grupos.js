@@ -8,7 +8,7 @@ import ButtonToolbar from 'react-bootstrap/ButtonToolbar';
 import Collapse from 'react-bootstrap/Collapse';
 import ListGroup from 'react-bootstrap/ListGroup'
 import Modal from 'react-bootstrap/Modal';
-import Moment from 'react-moment';
+//import Moment from 'react-moment';
 import 'moment-timezone';
 import Progress from "react-progress-2";
 import SweetAlert from 'sweetalert-react';
@@ -230,6 +230,7 @@ class grupos extends Component {
             let array = [];
             header.map((key, index) => {
                 array.push(key);
+                return null;
             });
 
             this.setState({ keys: array });
@@ -246,6 +247,7 @@ class grupos extends Component {
             let array = [];
             keysModal.map((key, index) => {
                 array.push(key);
+                return null;
             });
 
             this.setState({ optionsModal: array, keysModal: array });

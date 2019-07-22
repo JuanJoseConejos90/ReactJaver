@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { userService as user } from './../../services/user.services';
+import {  Link } from 'react-router-dom';
 import InputGroup from 'react-bootstrap/InputGroup';
 import FormControl from 'react-bootstrap/FormControl';
 import Button from 'react-bootstrap/Button';
@@ -17,6 +18,7 @@ import Form from 'react-bootstrap/Form';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import createFilter from './../../helpers/filter';
+//import $ from 'jquery';
 
 
 class usuarios extends Component {
@@ -35,6 +37,7 @@ class usuarios extends Component {
             { name: "Notempty", value: "Notempty" }, { name: "greater or equal", value: "greater or equal" }, { name: "less or equal", value: "less or equal" }],
             filters: [{ property: "firstName", value: "A", operador: "startWith" }, { property: "state", value: "I", operador: "Is" }],
             filterSearch: [],
+            filtersDb:[],
             filterSettings: [{ property: "", value: "", operador: "" }],
             filterCount: 0,
             filterCreated: 1,
@@ -148,6 +151,7 @@ class usuarios extends Component {
                         this.getItemHeader(data.users[0]);
                         this.getOptionsModal(data.users[0]);
                         this.countFilter();
+                        this.getFiltersDb();
                         Progress.hide();
                     }
                 })
@@ -160,6 +164,27 @@ class usuarios extends Component {
             console.log(error);
         }
 
+    }
+
+    getFiltersDb(){
+
+        try {
+
+            user.getFilterbyDataType("varchar")
+            .then(response => response.data)
+            .then((data) => {
+                if (data.code === 0) {
+                    this.setState({filtersDb : data.filters})  
+                }
+            })
+            .catch((err) => {
+                console.log(err);
+
+            });
+            
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     renderTableHeader() {
@@ -349,11 +374,11 @@ class usuarios extends Component {
     renderFilterOptions() {
         try {
 
-            return this.state.operadores.map((filter, index) => {
+            return this.state.filtersDb.map((filter, index) => {
                 return (
-                    <option key={index} value={filter.value}>{filter.name}</option>
+                    <option key={index} value={filter.descriptionING}>{filter.descriptionING}</option>
                 )
-            })
+            })   
 
         } catch (error) {
             console.log(error);
@@ -364,16 +389,54 @@ class usuarios extends Component {
 
         try {
 
+            Progress.show();
             const { filterSettings } = this.state;
             let index = event.target.dataset.index;
             filterSettings[index].property = event.target.value;
             this.setState({ filterSettings });
+            let id = event.target.id;
+
+            user.getFilterbyDataType("int")
+                .then(response => response.data)
+                .then((data) => {
+                    if (data.code === 0) {
+                        this.changeFilterOPTIONS(id, data.filters)
+                        this.forceUpdate();
+                        Progress.hide();
+
+                    }
+                })
+                .catch((err) => {
+                    console.log(err);
+                    Progress.hide();
+                });
 
         } catch (error) {
             console.log(error)
         }
 
     };
+
+    changeFilterOPTIONS(id, data) {
+        try {
+
+            this.setState({filtersDb : data});
+            //let jq = `#${id}`;
+            //let jquery= $(jq);
+            //jquery.empty();
+            //let select= $('#operador-0');
+            //select.empty();
+
+            //data.map((filter, index) => {
+                //(
+                    //select.append(<option key={filter.descriptionING}>{filter.descriptionING}</option>)
+                //)
+            //})
+
+        } catch (error) {
+            console.log(error)
+        }
+    }
 
     handleChangeSelectOperador = (event) => {
 
@@ -425,8 +488,8 @@ class usuarios extends Component {
                     array.push(filtersValuesJSON);
                     var filtersCreated = this.state.filterSettings;
                     await this.setState({ filterSearch: filtersCreated });
-                    const { filterSearch } = this.state;
-                    const {filterSettings} = this.state;
+                    //const { filterSearch } = this.state;
+                    const { filterSettings } = this.state;
                     datos = datos.filter(createFilter(...filterSettings));
                     this.setState({ users: datos });
 
@@ -479,14 +542,13 @@ class usuarios extends Component {
 
     };
 
-   
     renderFilterDynamic() {
         try {
 
             return (
                 this.state.filterSettings.map((filter, index) => {
                     let propertyId = `property-${index}`, operadorId = `operador-${index}`, valueId = `value-${index}`
-                    return <div className="row FilterCreated" id={index}>
+                    return <div className="row FilterCreated" id={index} key={index}>
                         <Form id={index}>
                             <Row id={index}>
                                 <Col>
@@ -503,15 +565,14 @@ class usuarios extends Component {
                                     <Form.Control placeholder="filtro" id={valueId} data-index={index} className="operador" onChange={this.handleChangeValue} value={filter.value} />
                                 </Col>
                                 <Col>
-                                    <ButtonToolbar>
-                                        <Button  variant="light" size="sm" className="btnTodos" onClick={this.addfilter}>AND</Button>
-                                        <Button  variant="light" size="sm" className="btnTodos" onClick={this.addfilter}>OR</Button>
-                                        <Button  variant="light" size="sm" className="btnTodos" onClick={() => this.deleteFilter(index)}>X</Button>
+                                    <ButtonToolbar key={index}>
+                                        <Button variant="light" size="sm" className="btnTodos" onClick={this.addfilter}>AND</Button>
+                                        <Button variant="light" size="sm" className="btnTodos" onClick={this.addfilter}>OR</Button>
+                                        <Button variant="light" size="sm" className="btnTodos" onClick={() => this.deleteFilter(index)}>X</Button>
                                     </ButtonToolbar>
                                 </Col>
                             </Row>
                         </Form>
-
                     </div>
                 })
 
@@ -570,7 +631,7 @@ class usuarios extends Component {
 
     render() {
         return (
-            <div className="container-fluid" data-panel="containerUsers" id="PanelContainer">
+            <div className="container-fluid" data-panel="containerUsers" id="PanelContainer" key="PanelContainer">
                 <div className="row">
                     <div className="col-12">
                         <Breadcrum inicio={this.state.inicio} modulo={this.state.modulo} componente={this.state.componente} />
@@ -597,8 +658,8 @@ class usuarios extends Component {
                                             </InputGroup.Prepend>
                                         </InputGroup>
                                     </div>
-                                    <div className="col-1">
-                                        <button className="btn btn-primary">Nuevo</button>
+                                    <div className="col-1 pull-right">
+                                        <button className="btn btn-primary"><Link to="./crearUsuario">Nuevo</Link></button>
                                     </div>
                                 </div>
 
@@ -649,13 +710,7 @@ class usuarios extends Component {
                         </div>
                     </div>
                 </div>
-                <Progress.Component style={{ background: 'orange' }} thumbStyle={{ background: 'green' }} />
-                <Modal
-                    size="lg"
-                    show={this.state.showModal}
-                    onHide={this.closeModal}
-                    dialogClassName="modal-90w"
-                    aria-labelledby="contained-modal-title-vcenter">
+                <Modal size="lg" show={this.state.showModal} onHide={this.closeModal} dialogClassName="modal-90w" aria-labelledby="contained-modal-title-vcenter">
                     <Modal.Header closeButton>
                         <Modal.Title id="contained-modal-title-vcenter">Configuración de vista</Modal.Title>
                     </Modal.Header>
@@ -701,12 +756,7 @@ class usuarios extends Component {
                     </Modal.Footer>
                 </Modal>
                 <Progress.Component style={{ background: 'orange' }} thumbStyle={{ background: 'green' }} />
-                <SweetAlert
-                    show={this.state.alert}
-                    title="Información"
-                    text={this.state.msg}
-                    onConfirm={() => this.setState({ alert: false })}
-                />
+                <SweetAlert show={this.state.alert} title="Información" text={this.state.msg} onConfirm={() => this.setState({ alert: false })}/>
             </div>
         );
     }
