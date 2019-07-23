@@ -2,7 +2,8 @@ import axios from 'axios';
 
 export const userService = {
     login, getUser, getgroups, getrols, getusers,
-    getQueryRolFilter, getQueryUserFilter, getFilterbyDataType
+    getQueryRolFilter, getQueryUserFilter, getFilterbyDataType,
+    getCompanys, getLocations
 };
 async function login(username, password) {
 
@@ -23,7 +24,6 @@ async function getgroups() {
     let axiosConfig = { headers: { 'Content-Type': 'application/json;charset=UTF-8', 'Access-Control-Allow-Origin': '*' } };
     return await axios.get(url, axiosConfig);
 }
-
 
 async function getusers() {
     const url = `/api/users/getAllUsers`;
@@ -74,6 +74,28 @@ async function getFilterbyDataType(typeData) {
     };
     const data = { typeData: typeData };
     return await axios.post(url, data, axiosConfig);
+}
+
+async function getCompanys() {
+    const url = `api/companys/getAllCompanys`;
+    let axiosConfig = {
+        headers: {
+            'Content-Type': 'application/json;charset=UTF-8',
+            'Access-Control-Allow-Origin': '*',
+        }
+    };
+    return await axios.get(url, axiosConfig);
+}
+
+async function getLocations() {
+    const url = `api/locations/getAllLocations`;
+    let axiosConfig = {
+        headers: {
+            'Content-Type': 'application/json;charset=UTF-8',
+            'Access-Control-Allow-Origin': '*',
+        }
+    };
+    return await axios.get(url, axiosConfig);
 }
 
 

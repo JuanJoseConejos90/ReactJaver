@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import Breadcrum from './../ui/Breadcrum';
+import Autocomplete from './../ui/Autocomplete';
 import Progress from "react-progress-2";
 import SweetAlert from 'sweetalert-react';
+import { userService as user } from './../../services/user.services';
 import 'sweetalert/dist/sweetalert.css';
 
 const emailRegex = RegExp(
@@ -21,6 +23,18 @@ class crearUsuario extends Component {
             email: '',
             businessPhone: '',
             homePhone: '',
+            company: '',
+            location: '',
+            rol: '',
+            suggestionscompanys: [],
+            suggestionslocations: [],
+            suggestionsrols: [],
+            placeholderCompanys: 'Compañias',
+            placeholderLocations: 'Locaciones',
+            placeholderRols: 'Roles',
+            typeCompany: 'company',
+            typeLocation: 'location',
+            typeRol: '',
             alert: false,
             loading: false,
             msg: '',
@@ -41,6 +55,157 @@ class crearUsuario extends Component {
         this.handleSumit = this.handleSumit.bind(this);
     }
 
+    componentDidMount() {
+        try {
+            this.getAllCompanys();
+            this.getAllLocations();
+            this.getAllRols();
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    getAllCompanys() {
+        try {
+
+            user.getCompanys()
+                .then(response => response.data)
+                .then((data) => {
+                    if (data.code === 0) {
+                        this.suggestionscompanysFilters(data.companys)
+                    }
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
+
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    suggestionscompanysFilters(data) {
+        try {
+
+            if (data.length > 0) {
+                let array = [];
+                data.map((company, index) => {
+                    array.push(company.companyName);
+                    return null;
+                });
+
+                this.setState({ suggestionscompanys: array });
+            }
+
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    getAllLocations() {
+        try {
+
+            user.getLocations()
+                .then(response => response.data)
+                .then((data) => {
+                    if (data.code === 0) {
+                        this.suggestionsLocationsFilters(data.locations)
+                    }
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    suggestionsLocationsFilters(data) {
+        try {
+
+            if (data.length > 0) {
+                let array = [];
+                data.map((locations, index) => {
+                    array.push(locations.lacationName);
+                    return null;
+                });
+
+                this.setState({ suggestionslocations: array });
+            }
+
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    getAllRols() {
+        try {
+
+            user.getrols()
+                .then(response => response.data)
+                .then((data) => {
+                    if (data.code === 0) {
+                        this.suggestionsRolsFilters(data.rols)
+                    }
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    suggestionsRolsFilters(data) {
+        try {
+
+            if (data.length > 0) {
+                let array = [];
+                data.map((rols, index) => {
+                    array.push(rols.rolName);
+                    return null;
+                });
+
+                this.setState({ suggestionsrols: array });
+            }
+
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    getCompany = (companyName) => {
+
+        try {
+            this.setState({ company: companyName })
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    getLocation = (locationName) => {
+        try {
+            this.setState({ location: locationName })
+
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    getRol = (rol) => {
+        try {
+            this.setState({ rol: rol })
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
 
     handleSumit = (event) => {
@@ -165,8 +330,8 @@ class crearUsuario extends Component {
                                             </div>
 
                                             <div className="row">
-                                                <div className="col-4">
 
+                                                <div className="col-4">
                                                     <div className="form-group row">
                                                         <label htmlFor="email" className="col-4 col-form-label">Email:</label>
                                                         <div className="col-8">
@@ -209,11 +374,36 @@ class crearUsuario extends Component {
                                             </div>
 
                                             <div className="row">
-                                                <div className="col-4"></div>
                                                 <div className="col-4">
-                                                    <button type="submit" className="btn btn-lg btn-primary btn-block" size="lg" block>Crear</button>
+                                                    <div className="form-group row">
+                                                        <label htmlFor="businessPhone" className="col-4 col-form-label">Compañia:</label>
+                                                        <div className="col-8">
+                                                            <Autocomplete suggestions={this.state.suggestionscompanys} getCompany={this.getCompany} type={this.state.typeCompany} placeholder={this.state.placeholderCompanys} />
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <div className="col-4"></div>
+                                                <div className="col-4">
+                                                    <div className="form-group row">
+                                                        <label htmlFor="businessPhone" className="col-4 col-form-label">Locación:</label>
+                                                        <div className="col-8">
+                                                            <Autocomplete suggestions={this.state.suggestionslocations} getLocation={this.getLocation} type={this.state.typeLocation} placeholder={this.state.placeholderLocations} />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="col-4">
+                                                    <div className="form-group row">
+                                                        <label htmlFor="businessPhone" className="col-4 col-form-label">Roles:</label>
+                                                        <div className="col-8">
+                                                            <Autocomplete suggestions={this.state.suggestionsrols} getRol={this.getRol} type={this.state.typeRol} placeholder={this.state.placeholderRols} />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="row">
+                                                <div className="col-12">
+                                                    <button type="submit" className="btn btn-primary btn-lg btn-block">Crear</button>
+                                                </div>
                                             </div>
 
                                         </form>
@@ -227,7 +417,7 @@ class crearUsuario extends Component {
                 </div>
                 <Progress.Component style={{ background: 'orange' }} thumbStyle={{ background: 'green' }} />
                 <SweetAlert show={this.state.alert} title="Información" text={this.state.msg} onConfirm={() => this.setState({ alert: false })} />
-            </div>
+            </div >
         );
     }
 }
