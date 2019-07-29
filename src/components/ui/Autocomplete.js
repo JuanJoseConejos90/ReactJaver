@@ -13,11 +13,14 @@ class Autocomplete extends Component {
     constructor(props) {
         super(props);
 
+        const { userInput } = props; 
+        
         this.state = {
             activeSuggestion: 0,
             filteredSuggestions: [],
             showSuggestions: false,
-            userInput: ""
+            userInput: userInput
+
         };
     }
 
@@ -26,7 +29,7 @@ class Autocomplete extends Component {
         const userInput = e.currentTarget.value;
         const filteredSuggestions = suggestions.filter(
             suggestion =>
-                suggestion.toLowerCase().indexOf(userInput.toLowerCase()) > -1
+                suggestion.Name.toLowerCase().indexOf(userInput.toLowerCase()) > -1
         );
 
         this.setState({
@@ -43,17 +46,24 @@ class Autocomplete extends Component {
             filteredSuggestions: [],
             showSuggestions: false,
             userInput: e.currentTarget.innerText
+
         });
 
         switch (this.props.type) {
             case "company":
-                this.props.getCompany(e.currentTarget.innerText);
+                this.props.getCompany(e.currentTarget.id);
                 break;
             case "location":
-                this.props.getLocation(e.currentTarget.innerText);
+                this.props.getLocation(e.currentTarget.id);
                 break;
-            case "Rols":
-                this.props.getRol(e.currentTarget.innerText);
+            case "rol":
+                this.props.getRol(e.currentTarget.id);
+                break;
+            case "department":
+                this.props.getDepartment(e.currentTarget.id);
+                break;
+            case "group":
+                this.props.getGroup(e.currentTarget.id);
                 break;
             default:
                 break;
@@ -86,6 +96,13 @@ class Autocomplete extends Component {
         }
     };
 
+
+    setInput(){
+        this.setState({userInput: this.props.userInput});
+    }
+
+    
+
     render() {
         const {
             onChange,
@@ -101,6 +118,8 @@ class Autocomplete extends Component {
 
         let suggestionsListComponent;
 
+    
+
         if (showSuggestions && userInput) {
             if (filteredSuggestions.length) {
                 suggestionsListComponent = (
@@ -113,8 +132,8 @@ class Autocomplete extends Component {
                             }
 
                             return (
-                                <li className={className} key={suggestion} onClick={onClick}>
-                                    {suggestion}
+                                <li className={className} id={suggestion.Id} key={suggestion.Id} onClick={onClick}>
+                                    {suggestion.Name}
                                 </li>
                             );
                         })}
@@ -122,7 +141,7 @@ class Autocomplete extends Component {
                 );
             } else {
                 suggestionsListComponent = (
-                    <div class="no-suggestions">
+                    <div className="no-suggestions">
                         <em>Sin coincidencias!!!</em>
                     </div>
                 );
@@ -132,7 +151,7 @@ class Autocomplete extends Component {
         return (
             <Fragment>
                 <div className="input-group mb-3 companysSearch">
-                    <div className="input-group-prepend">
+                    <div className="input-group-prepend" data-type="searchFilters">
                         <span className="input-group-text" id="basic-addon1"><i className="fa fa-search"></i></span>
                     </div>
                     <input
@@ -141,7 +160,7 @@ class Autocomplete extends Component {
                         placeholder={this.props.placeholder}
                         onChange={onChange}
                         onKeyDown={onKeyDown}
-                        value={userInput}
+                        value={this.state.userInput}
                     />
                 </div>
                 {suggestionsListComponent}

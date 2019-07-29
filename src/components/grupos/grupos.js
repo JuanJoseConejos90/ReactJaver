@@ -11,8 +11,6 @@ import Modal from 'react-bootstrap/Modal';
 //import Moment from 'react-moment';
 import 'moment-timezone';
 import Progress from "react-progress-2";
-import SweetAlert from 'sweetalert-react';
-import 'sweetalert/dist/sweetalert.css';
 import Form from 'react-bootstrap/Form';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
@@ -486,12 +484,6 @@ class grupos extends Component {
                     </Modal.Footer>
                 </Modal>
                 <Progress.Component style={{ background: 'orange' }} thumbStyle={{ background: 'green' }} />
-                <SweetAlert
-                    show={this.state.alert}
-                    title="Información"
-                    text={this.state.msg}
-                    onConfirm={() => this.setState({ alert: false })}
-                />
             </div>
         );
     }

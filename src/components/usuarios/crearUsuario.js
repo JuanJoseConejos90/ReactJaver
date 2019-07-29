@@ -3,13 +3,12 @@ import { Link } from 'react-router-dom';
 import Breadcrum from './../ui/Breadcrum';
 import Autocomplete from './../ui/Autocomplete';
 import Progress from "react-progress-2";
-import SweetAlert from 'sweetalert-react';
 import { userService as user } from './../../services/user.services';
-import 'sweetalert/dist/sweetalert.css';
+import config from './../../config';
+import swal from 'sweetalert';
 
-const emailRegex = RegExp(
-    /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
-);
+const emailRegex = RegExp('/^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/');
+const passRegex = RegExp('/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/');
 
 class crearUsuario extends Component {
 
@@ -23,18 +22,29 @@ class crearUsuario extends Component {
             email: '',
             businessPhone: '',
             homePhone: '',
+            mobilePhone: '',
+            gender: '',
+            pass: '',
             company: '',
             location: '',
             rol: '',
+            department: '',
+            group: '',
             suggestionscompanys: [],
             suggestionslocations: [],
             suggestionsrols: [],
+            suggestionsdepartments: [],
+            suggestionsgroups: [],
             placeholderCompanys: 'Compañias',
             placeholderLocations: 'Locaciones',
             placeholderRols: 'Roles',
+            placeholderDepartment: 'Departamento',
+            placeholderGroup: 'Grupo',
             typeCompany: 'company',
             typeLocation: 'location',
-            typeRol: '',
+            typeRol: 'rol',
+            typeDepartment: 'department',
+            typeGroup: 'group',
             alert: false,
             loading: false,
             msg: '',
@@ -44,7 +54,9 @@ class crearUsuario extends Component {
                 lastName: "",
                 email: "",
                 businessPhone: "",
-                homePhone: ""
+                homePhone: "",
+                mobilePhone: "",
+                pass: ""
             },
             inicio: 'Inicio',
             modulo: 'Gestión Usuarios',
@@ -53,6 +65,7 @@ class crearUsuario extends Component {
 
         this.handleChange = this.handleChange.bind(this);
         this.handleSumit = this.handleSumit.bind(this);
+        this.handleChangeSelectgender = this.handleChangeSelectgender.bind(this);
     }
 
     componentDidMount() {
@@ -60,6 +73,8 @@ class crearUsuario extends Component {
             this.getAllCompanys();
             this.getAllLocations();
             this.getAllRols();
+            this.getAllDepartments();
+            this.getAllGroup();
 
         } catch (error) {
             console.log(error);
@@ -69,16 +84,17 @@ class crearUsuario extends Component {
     getAllCompanys() {
         try {
 
-            user.getCompanys()
-                .then(response => response.data)
-                .then((data) => {
-                    if (data.code === 0) {
-                        this.suggestionscompanysFilters(data.companys)
-                    }
-                })
-                .catch((err) => {
-                    console.log(err);
-                });
+            user
+              .getCompanys()
+              .then(response => response.data)
+              .then(data => {
+                if (data.code === 0) {
+                  this.suggestionscompanysFilters(data.companys);
+                }
+              })
+              .catch(err => {
+                console.log(err);
+              });
 
         } catch (error) {
             console.log(error)
@@ -91,7 +107,11 @@ class crearUsuario extends Component {
             if (data.length > 0) {
                 let array = [];
                 data.map((company, index) => {
-                    array.push(company.companyName);
+                    var companySimple = {
+                        Id: company.companyId,
+                        Name: company.companyName
+                    }
+                    array.push(companySimple);
                     return null;
                 });
 
@@ -128,8 +148,12 @@ class crearUsuario extends Component {
 
             if (data.length > 0) {
                 let array = [];
-                data.map((locations, index) => {
-                    array.push(locations.lacationName);
+                data.map((location, index) => {
+                    var locationSimple = {
+                        Id: location.locationId,
+                        Name: location.locationName
+                    }
+                    array.push(locationSimple);
                     return null;
                 });
 
@@ -166,8 +190,12 @@ class crearUsuario extends Component {
 
             if (data.length > 0) {
                 let array = [];
-                data.map((rols, index) => {
-                    array.push(rols.rolName);
+                data.map((rol, index) => {
+                    var rolSimple = {
+                        Id: rol.rolId,
+                        Name: rol.rolName
+                    }
+                    array.push(rolSimple);
                     return null;
                 });
 
@@ -180,19 +208,104 @@ class crearUsuario extends Component {
         }
     }
 
-    getCompany = (companyName) => {
+    getAllDepartments() {
+        try {
+
+            user.getDepartments()
+                .then(response => response.data)
+                .then((data) => {
+                    if (data.code === 0) {
+                        this.suggestionsdepartmentsFilters(data.departments)
+                    }
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
+
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    suggestionsdepartmentsFilters(data) {
 
         try {
-            this.setState({ company: companyName })
+
+            if (data.length > 0) {
+                let array = [];
+                data.map((department, index) => {
+                    var departmentSimple = {
+                        Id: department.departmentId,
+                        Name: department.departmentName
+                    }
+
+                    array.push(departmentSimple);
+                    return null;
+                });
+
+                this.setState({ suggestionsdepartments: array });
+            }
 
         } catch (error) {
             console.log(error);
         }
     }
 
-    getLocation = (locationName) => {
+    getAllGroup() {
         try {
-            this.setState({ location: locationName })
+
+            user.getGroups()
+                .then(response => response.data)
+                .then((data) => {
+                    if (data.code === 0) {
+                        this.suggestionsgroupsFilters(data.groups)
+                    }
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
+
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    suggestionsgroupsFilters(data) {
+
+        try {
+
+            if (data.length > 0) {
+                let array = [];
+                data.map((group, index) => {
+                    var groupSimple = {
+                        Id: group.groupId,
+                        Name: group.groupName
+                    }
+                    array.push(groupSimple);
+                    return null;
+                });
+
+                this.setState({ suggestionsgroups: array });
+            }
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    getCompany = (company) => {
+
+        try {
+            this.setState({ company: company })
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    getLocation = (location) => {
+        try {
+            this.setState({ location: location })
 
         } catch (error) {
             console.log(error)
@@ -207,10 +320,49 @@ class crearUsuario extends Component {
         }
     }
 
+    getDepartment = (department) => {
+
+        try {
+            this.setState({ department: department })
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    getGroup = (group) => {
+
+        try {
+
+            this.setState({ group: group })
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
 
     handleSumit = (event) => {
         try {
             event.preventDefault();
+            user.createdUser(this.state.userName, this.state.firstName, this.state.lastName, "INTEL", null, 1,
+            parseInt(this.state.department), 1, parseInt(this.state.location), parseInt(this.state.company), this.state.businessPhone,
+            this.state.homePhone, this.state.mobilePhone, this.state.email, this.state.gender,
+            "JJCS", config.date, "JJCS", config.date, "HH:MM:SS", "HH:MM:SS", this.state.pass, config.state, config.state, config.state, parseInt(this.state.rol),
+            parseInt(this.state.group), config.state)
+
+            .then(response => response.data)
+            .then((data) => {
+                if (data.code === 0) {
+                    swal("Información!", "Usuario creado de manera correcta!", "success");
+                }else{
+                    swal("Información!", "Error en la creación de usuario!", "error");
+                }
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+
+           
         } catch (error) {
             console.log(error);
         }
@@ -249,7 +401,13 @@ class crearUsuario extends Component {
                     formErrors.homePhone =
                         value.length < 8 ? "El mínimo para este campo es de 8 números" : "";
                     break;
-
+                case "mobilePhone":
+                    formErrors.mobilePhone =
+                        value.length < 8 ? "El mínimo para este campo es de 8 números" : "";
+                    break;
+                case "pass":
+                    formErrors.pass = passRegex.test(value) ? "" : "El password no es lo bastante suguro";
+                    break;
                 default:
                     break;
             }
@@ -259,6 +417,21 @@ class crearUsuario extends Component {
         } catch (error) {
             console.log(error);
         }
+    }
+
+    handleChangeSelectgender = (event) => {
+
+        try {
+
+            event.preventDefault();
+            const { value } = event.target;
+            this.setState({ gender: value });
+
+
+        } catch (error) {
+            console.log(error);
+        }
+
     }
 
     render() {
@@ -333,18 +506,18 @@ class crearUsuario extends Component {
 
                                                 <div className="col-4">
                                                     <div className="form-group row">
-                                                        <label htmlFor="email" className="col-4 col-form-label">Email:</label>
+                                                        <label htmlFor="mobilePhone" className="col-4 col-form-label">Teléfono:</label>
                                                         <div className="col-8">
-                                                            <input type="text" id="email" name="email" className={(formErrors.email.length > 0) ? "error" : "form-control"} placeholder="correo" onChange={this.handleChange} />
+                                                            <input type="number" id="mobilePhone" name="mobilePhone" className={(formErrors.mobilePhone.length) > 0 ? "error" : "form-control"} placeholder="teléfono Personal" onChange={this.handleChange} />
                                                         </div>
                                                     </div>
                                                     <div className="form-group row">
                                                         <div className="col-12">
-                                                            {formErrors.email.length > 0 && (<span className="errorMessage">{formErrors.email}</span>)}
+                                                            {formErrors.mobilePhone.length > 0 && (<span className="errorMessage">{formErrors.mobilePhone}</span>)}
                                                         </div>
                                                     </div>
-
                                                 </div>
+
                                                 <div className="col-4">
                                                     <div className="form-group row">
                                                         <label htmlFor="businessPhone" className="col-4 col-form-label">Teléfono:</label>
@@ -401,6 +574,65 @@ class crearUsuario extends Component {
                                             </div>
 
                                             <div className="row">
+                                                <div className="col-4">
+                                                    <div className="form-group row">
+                                                        <label htmlFor="businessPhone" className="col-4 col-form-label">Department:</label>
+                                                        <div className="col-8">
+                                                            <Autocomplete suggestions={this.state.suggestionsdepartments} getDepartment={this.getDepartment} type={this.state.typeDepartment} placeholder={this.state.placeholderDepartment} />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="col-4">
+                                                    <div className="form-group row">
+                                                        <label htmlFor="businessPhone" className="col-4 col-form-label">Grupo:</label>
+                                                        <div className="col-8">
+                                                            <Autocomplete suggestions={this.state.suggestionsgroups} getGroup={this.getGroup} type={this.state.typeGroup} placeholder={this.state.placeholderGroup} />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="col-4">
+                                                    <div className="form-group row">
+                                                        <label htmlFor="genero" className="col-4 col-form-label">Genero:</label>
+                                                        <div className="col-8">
+                                                            <select className="form-control" id="genero" onChange={this.handleChangeSelectgender}>
+                                                                <option value="M">Maculino</option>
+                                                                <option value="F">Femenino</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="row">
+                                                <div className="col-4">
+                                                    <div className="form-group row">
+                                                        <label htmlFor="email" className="col-4 col-form-label">Email:</label>
+                                                        <div className="col-8">
+                                                            <input type="text" id="email" name="email" className={(formErrors.email.length > 0) ? "error" : "form-control"} placeholder="correo" onChange={this.handleChange} />
+                                                        </div>
+                                                    </div>
+                                                    <div className="form-group row">
+                                                        <div className="col-12">
+                                                            {formErrors.email.length > 0 && (<span className="errorMessage">{formErrors.email}</span>)}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="col-4">
+                                                    <div className="form-group row">
+                                                        <label htmlFor="pass" className="col-4 col-form-label">Password:</label>
+                                                        <div className="col-8">
+                                                            <input type="password" id="pass" name="pass" className={(formErrors.pass.length) > 0 ? "error" : "form-control"} placeholder="password" onChange={this.handleChange} />
+                                                        </div>
+                                                    </div>
+                                                    <div className="form-group row">
+                                                        <div className="col-12">
+                                                            {formErrors.pass.length > 0 && (<span className="errorMessage">{formErrors.pass}</span>)}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="row">
                                                 <div className="col-12">
                                                     <button type="submit" className="btn btn-primary btn-lg btn-block">Crear</button>
                                                 </div>
@@ -416,7 +648,6 @@ class crearUsuario extends Component {
                     </div>
                 </div>
                 <Progress.Component style={{ background: 'orange' }} thumbStyle={{ background: 'green' }} />
-                <SweetAlert show={this.state.alert} title="Información" text={this.state.msg} onConfirm={() => this.setState({ alert: false })} />
             </div >
         );
     }

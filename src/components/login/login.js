@@ -2,8 +2,6 @@ import React, { Component } from 'react';
 import { userService as user } from '../../services/user.services';
 import { Redirect } from 'react-router-dom';
 import Progress from "react-progress-2";
-import SweetAlert from 'sweetalert-react';
-import './../../../node_modules/sweetalert/dist/sweetalert.css';
 import "react-progress-2/main.css";
 import './style.module.scss';
 
@@ -50,6 +48,7 @@ class login extends Component {
             .then((data) => {
                 if (data.code === 0) {
                     localStorage.setItem('token', `Bearer ${data.token}`);
+                    localStorage.setItem('userId', data.userId);
                     this.setState({ loginAuth: true, loading: false });
                 } else {
                     this.setState({ alert: true });
@@ -101,12 +100,7 @@ class login extends Component {
                 </div>
             </div>
             <Progress.Component style={{ background: 'orange' }} thumbStyle={{ background: 'green' }} />
-            <SweetAlert
-                    show={this.state.alert}
-                    title="Información"
-                    text={this.state.msg}
-                    onConfirm={() => this.setState({ alert: false })}
-                />
+            
         </div>
     }
 }

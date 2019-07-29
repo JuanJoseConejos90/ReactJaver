@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { userService as user } from './../../services/user.services';
-import {  Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import InputGroup from 'react-bootstrap/InputGroup';
 import FormControl from 'react-bootstrap/FormControl';
 import Button from 'react-bootstrap/Button';
@@ -12,12 +12,13 @@ import Modal from 'react-bootstrap/Modal';
 import Moment from 'react-moment';
 import 'moment-timezone';
 import Progress from "react-progress-2";
-import SweetAlert from 'sweetalert-react';
-import 'sweetalert/dist/sweetalert.css';
 import Form from 'react-bootstrap/Form';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import createFilter from './../../helpers/filter';
+import Dropdown from 'react-bootstrap/Dropdown';
+import DropdownButton from 'react-bootstrap/DropdownButton';
+import swal from 'sweetalert';
 //import $ from 'jquery';
 
 
@@ -37,16 +38,14 @@ class usuarios extends Component {
             { name: "Notempty", value: "Notempty" }, { name: "greater or equal", value: "greater or equal" }, { name: "less or equal", value: "less or equal" }],
             filters: [{ property: "firstName", value: "A", operador: "startWith" }, { property: "state", value: "I", operador: "Is" }],
             filterSearch: [],
-            filtersDb:[],
+            filtersDb: [],
             filterSettings: [{ property: "", value: "", operador: "" }],
             filterCount: 0,
             filterCreated: 1,
             buscar: '',
             colapse: false,
             showModal: false,
-            alert: false,
             loading: false,
-            msg: '',
             inicio: 'Inicio',
             modulo: 'Gestión Usuarios',
             componente: 'Usuarios'
@@ -65,6 +64,7 @@ class usuarios extends Component {
         this.runFilter = this.runFilter.bind(this);
         this.loadData = this.loadData.bind(this);
         this.deleteFilter = this.deleteFilter.bind(this);
+        this.handleChangeActionBydelete = this.handleChangeActionBydelete.bind(this);
     }
 
 
@@ -128,7 +128,7 @@ class usuarios extends Component {
 
             } else {
                 Progress.show();
-                this.setState({ showModal: false, msg: 'Se debe se seleccionar al menos opción', alert: true });
+                swal("Información!", "Se debe se seleccionar al menos opción!", "info");
                 Progress.hide();
             }
 
@@ -166,22 +166,22 @@ class usuarios extends Component {
 
     }
 
-    getFiltersDb(){
+    getFiltersDb() {
 
         try {
 
             user.getFilterbyDataType("varchar")
-            .then(response => response.data)
-            .then((data) => {
-                if (data.code === 0) {
-                    this.setState({filtersDb : data.filters})  
-                }
-            })
-            .catch((err) => {
-                console.log(err);
+                .then(response => response.data)
+                .then((data) => {
+                    if (data.code === 0) {
+                        this.setState({ filtersDb: data.filters })
+                    }
+                })
+                .catch((err) => {
+                    console.log(err);
 
-            });
-            
+                });
+
         } catch (error) {
             console.log(error);
         }
@@ -243,7 +243,17 @@ class usuarios extends Component {
             let header = Object.keys(this.state.users[0]);
             return header.map((key, index) => {
                 var value = (this.isDate(this.state.users[indice][key]) ? this.parseMoment(this.state.users[indice][key]) : this.state.users[indice][key])
-                return <td key={index}>{value}</td>
+                if (index === 0) {
+                    return <td key={index}>
+                        <div className="form-check">
+                            <input type="checkbox" className="form-check-input" id="checkId" />
+                            <Link to={`/actualizarUsuario/${value}`}>{value}</Link>
+                        </div>
+                    </td>
+                } else {
+                    return <td key={index}>{value}</td>
+                }
+
             })
 
         } catch (error) {
@@ -378,7 +388,7 @@ class usuarios extends Component {
                 return (
                     <option key={index} value={filter.descriptionING}>{filter.descriptionING}</option>
                 )
-            })   
+            })
 
         } catch (error) {
             console.log(error);
@@ -420,7 +430,7 @@ class usuarios extends Component {
     changeFilterOPTIONS(id, data) {
         try {
 
-            this.setState({filtersDb : data});
+            this.setState({ filtersDb: data });
             //let jq = `#${id}`;
             //let jquery= $(jq);
             //jquery.empty();
@@ -428,9 +438,9 @@ class usuarios extends Component {
             //select.empty();
 
             //data.map((filter, index) => {
-                //(
-                    //select.append(<option key={filter.descriptionING}>{filter.descriptionING}</option>)
-                //)
+            //(
+            //select.append(<option key={filter.descriptionING}>{filter.descriptionING}</option>)
+            //)
             //})
 
         } catch (error) {
@@ -492,9 +502,6 @@ class usuarios extends Component {
                     const { filterSettings } = this.state;
                     datos = datos.filter(createFilter(...filterSettings));
                     this.setState({ users: datos });
-
-
-
                     Progress.hide();
 
 
@@ -588,7 +595,6 @@ class usuarios extends Component {
         try {
 
             event.preventDefault();
-
             if (this.state.filterCreated <= this.state.filterCount) {
                 this.setState((prevState) => ({
                     filterSettings: [...prevState.filterSettings, { property: "", value: "", operador: "" }],
@@ -596,7 +602,7 @@ class usuarios extends Component {
                 let count = this.state.filterCreated + 1;
                 this.setState({ filterCreated: count });
             } else {
-                this.setState({ alert: true, msg: 'El número de filtros no puede exceder lo permitido' });
+                swal("Información!", "El número de filtros no puede exceder lo permitido!", "info");
             }
 
         } catch (error) {
@@ -619,13 +625,22 @@ class usuarios extends Component {
                 this.setState({ filterCreated: countLess });
 
             } else {
-                this.setState({ alert: true, msg: 'Debe de existir al menos un filtro' });
+                swal("Información!", "Debe de existir al menos un filtro!", "info");
             }
 
 
 
         } catch (error) {
             console.log(error);
+        }
+    }
+
+    handleChangeActionBydelete = (event) => {
+        try {
+            event.preventDefault();
+            console.log(event.target.value);
+        } catch (error) {
+            console.log(error)
         }
     }
 
@@ -645,14 +660,7 @@ class usuarios extends Component {
                                     </div>
                                     <div className="col-2">
                                         <InputGroup className="mb-3">
-                                            <FormControl
-                                                placeholder="Buscar..."
-                                                aria-label="Buscar"
-                                                aria-describedby="basic-addon1"
-                                                id="buscar"
-                                                value={this.state.buscar}
-                                                onChange={this.handleChange}
-                                            />
+                                            <FormControl placeholder="Buscar..." aria-label="Buscar" aria-describedby="basic-addon1" id="buscar" value={this.state.buscar} onChange={this.handleChange} />
                                             <InputGroup.Prepend>
                                                 <InputGroup.Text id="basic-addon1"><i className="fa fa-search"></i></InputGroup.Text>
                                             </InputGroup.Prepend>
@@ -662,7 +670,6 @@ class usuarios extends Component {
                                         <button className="btn btn-primary"><Link to="./crearUsuario">Nuevo</Link></button>
                                     </div>
                                 </div>
-
                             </div>
                             <div className="card-body">
                                 <div className="row">
@@ -705,8 +712,16 @@ class usuarios extends Component {
                                         {this.renderTableData()}
                                     </tbody>
                                 </table>
+                                <div className="row">
+                                    <div className="col-6 DropdownButtonActions">
+                                        <DropdownButton id="dropdown-item-button" 
+                                                        drop={'right'}
+                                                        title="Selecciones acciones">
+                                            <Dropdown.Item as="button">Eliminar</Dropdown.Item>
+                                        </DropdownButton>
+                                    </div>
+                                </div>
                             </div>
-                            <div className="card-footer"></div>
                         </div>
                     </div>
                 </div>
@@ -756,7 +771,6 @@ class usuarios extends Component {
                     </Modal.Footer>
                 </Modal>
                 <Progress.Component style={{ background: 'orange' }} thumbStyle={{ background: 'green' }} />
-                <SweetAlert show={this.state.alert} title="Información" text={this.state.msg} onConfirm={() => this.setState({ alert: false })}/>
             </div>
         );
     }

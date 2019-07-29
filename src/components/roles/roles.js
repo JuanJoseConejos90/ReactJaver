@@ -1,86 +1,92 @@
-import React, { Component } from 'react';
+import React, { Component } from "react";
 import { userService as user } from './../../services/user.services';
-import Moment from 'react-moment';
+import Breadcrum from './../ui/Breadcrum';
 import 'moment-timezone';
+import Progress from "react-progress-2";
+import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
+import "./../../../node_modules/react-bootstrap-table/dist/react-bootstrap-table-all.min.css";
 
 class roles extends Component {
+  constructor(props) {
+    super(props);
 
-    constructor(props) {
-        super(props)
-        this.state = {
-            rols: []
-        }
+    this.state = {
+      rols: [],
+      inicio: "Inicio",
+      modulo: "Gestión Usuarios",
+      componente: "Roles"
+    };
+  }
+
+  componentDidMount(){
+
+    try {
+            user.getrols()
+                .then(response => response.data)
+                .then((data) => {
+                    if (data.code === 0) {
+                        this.setState({ rols: data.rols });
+                    }
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
+        
+    } catch (error) {
+        console.log(error);
     }
+  }
 
-    componentDidMount() {
+  renderTable(){
 
-        user.getrols()
-            .then(response => response.data)
-            .then((data) => {
-                if (data.code === 0) {
-                    this.setState({
-                        rols: data.rols
-                    });
-                }
+    try {
+        
+        if (this.state.rols.length > 0) {
+            let header = Object.keys(this.state.rols[0]);
+            return header.map((key, index) => {
+                let iskeyid= (index===0) ? true : false;
+                return <TableHeaderColumn dataField={key} isKey={iskeyid}>{key}</TableHeaderColumn>
             })
-            .catch((err) => {
-                console.log(err);
-            });
+        }
 
+    } catch (error) {
+        console.log(error)
     }
+  }
 
-    renderTableData() {
-        return this.state.rols.map((rol, index) => {
-            const { rolId, rolName, state, createdBy, created, updates, updateBy, updated } = rol
-            return (
-                <tr key={rolId}>
-                    <td>{rolName}</td>
-                    <td>{state}</td>
-                    <td>{createdBy}</td>
-                    <td><Moment format="YYYY/MM/DD">{created}</Moment></td>
-                    <td>{updates}</td>
-                    <td>{updateBy}</td>
-                    <td><Moment format="YYYY/MM/DD">{updated}</Moment></td>
-                </tr>
-            )
-        })
-    }
-
-
-    render() {
-        return (
-            <div className="container-fluid" data-panel="containerRoles">
+  render() {
+    return <div className="container-fluid" data-panel="containerRoles">
                 <div className="row">
                     <div className="col-12">
+                        <Breadcrum inicio={this.state.inicio} modulo={this.state.modulo} componente={this.state.componente} />
+                    </div>
+                    <div className="col-12">
                         <div className="card">
-                            <div className="card-header">
-                                <h2>Rols</h2>
+                            <div className="card-header tittleContent">
+                                <div className="col-12">
+                                    <h2>Roles</h2>
+                                </div>
                             </div>
                             <div className="card-body">
-                                <table className="table table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th>Nombre</th>
-                                            <th>Activo</th>
-                                            <th>Creado Por</th>
-                                            <th>created</th>
-                                            <th>updates</th>
-                                            <th>Actualizado Por</th>
-                                            <th>updated</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {this.renderTableData()}
-                                    </tbody>
-                                </table>
+                                <div className="row">
+                                     <BootstrapTable data={this.state.rols} pagination>
+                                          <TableHeaderColumn dataField='rolId' isKey>rolId</TableHeaderColumn>
+                                          <TableHeaderColumn dataField='rolName'>rolName</TableHeaderColumn>
+                                          <TableHeaderColumn dataField='state'>state</TableHeaderColumn>
+                                          <TableHeaderColumn dataField='createdBy'>createdBy</TableHeaderColumn>
+                                          <TableHeaderColumn dataField='created'>created</TableHeaderColumn>
+                                          <TableHeaderColumn dataField='updates'>updates</TableHeaderColumn>
+                                          <TableHeaderColumn dataField='updateBy'>updateBy</TableHeaderColumn>
+                                          <TableHeaderColumn dataField='updated'>updated</TableHeaderColumn>
+                                    </BootstrapTable>
+                                </div>
                             </div>
-                            <div className="card-footer"></div>
                         </div>
                     </div>
                 </div>
-            </div>
-        );
-    }
+                <Progress.Component style={{ background: 'orange' }} thumbStyle={{ background: 'green' }} />
+           </div>
+  }
 }
 
 export default roles;
