@@ -10,6 +10,7 @@ import grupos from './../grupos/grupos';
 import localidades from './../localidades/localidades';
 import departamentos from './../departamentos/departamentos';
 import PrivateRoute from './../../helpers/PrivateRoute';
+import Dropdown from 'react-bootstrap/Dropdown';
 import './style.module.scss';
 
 class home extends Component {
@@ -21,10 +22,12 @@ class home extends Component {
             buscar: '',
             classActive: true,
             subHome: true,
-            submenuUsuario: true
+            submenuUsuario: true,
+            nickName: localStorage.getItem('nickName')
         };
 
         this.handleChange = this.handleChange.bind(this);
+        this.logout = this.logout.bind(this);
 
     }
 
@@ -60,9 +63,35 @@ class home extends Component {
     };
 
 
+    logout = (event) => {
+        localStorage.clear();
+        window.location.href = '/';
+    }
 
     render() {
         return (<Router>
+            <header>
+                <div className="row navBarsection">
+                    <div className="col-8">
+                        <h1 className="titulo-home">Javer</h1>
+                    </div>
+                    <div className="col-4 detalleusuario">
+                        <Dropdown>
+                            <Dropdown.Toggle variant="info" id="dropdown-basic">
+                                {this.state.nickName}
+                            </Dropdown.Toggle>
+                            <Dropdown.Menu>
+                                <Dropdown.Item href="#/action-1">Detalle</Dropdown.Item>
+                                <Dropdown.Divider />
+                                <Dropdown.Item href="#"><i className="fa fa-user"></i><span className="toolMenu">Mi cuenta</span></Dropdown.Item>
+                                <Dropdown.Item href="#"><i className="fa fa-cog"></i><span className="toolMenu">Configuración</span></Dropdown.Item>
+                                <Dropdown.Item href="#"><i className="fa fa-cog"></i><span className="toolMenu">Cambiar Clave</span></Dropdown.Item>
+                                <Dropdown.Item href="#" onClick={this.logout}><i className="fa fa-sign-out-alt"></i><span className="toolMenu">Salir</span></Dropdown.Item>
+                            </Dropdown.Menu>
+                        </Dropdown>
+                    </div>
+                </div>
+            </header>
             <div className="wrapper">
                 <nav id="sidebar" className={this.state.classActive ? 'active' : null}>
                     <div className="sidebar-header"></div>
@@ -159,10 +188,10 @@ class home extends Component {
                             </div>
                         </div>
                     </nav>
-                    <PrivateRoute exact path="/usuarioInfo" component={usuarioInfo} />
-                    <PrivateRoute exact path="/usuarios" component={usuarios} />
-                    <PrivateRoute exact path="/crearUsuario" component={crearUsuario} />
-                    <PrivateRoute exact path="/actualizarUsuario/:userId" component={actualizarUsuario} />
+                    <Route path="/usuarioInfo" component={usuarioInfo} />
+                    <Route path="/usuarios" component={usuarios} />
+                    <Route path="/crearUsuario" component={crearUsuario} />
+                    <Route path="/actualizarUsuario/:userId" component={actualizarUsuario} />
                     <Route path="/grupos" component={grupos} />
                     <Route path="/roles" component={roles} />
                     <Route path="/departamentos" component={departamentos} />
@@ -174,6 +203,5 @@ class home extends Component {
         );
     }
 }
-
 
 export default home;

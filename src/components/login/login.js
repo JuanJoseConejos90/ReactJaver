@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { userService as user } from '../../services/user.services';
 import { Redirect } from 'react-router-dom';
 import Progress from "react-progress-2";
+import swal from 'sweetalert';
 import "react-progress-2/main.css";
 import './style.module.scss';
 
@@ -18,7 +19,7 @@ class login extends Component {
             recordarClave: false,
             show: false,
             alert: false,
-            msg:'Usuario o password Incorrecto!!!'
+            msg: 'Usuario o password Incorrecto!!!'
         };
 
         this.handleChange = this.handleChange.bind(this);
@@ -40,7 +41,7 @@ class login extends Component {
         });
     }
 
-    handleSubmit(event) {
+    handleSubmit = event => {
         event.preventDefault();
         Progress.show();
         user.login(this.state.username, this.state.password)
@@ -49,18 +50,25 @@ class login extends Component {
                 if (data.code === 0) {
                     localStorage.setItem('token', `Bearer ${data.token}`);
                     localStorage.setItem('userId', data.userId);
-                    this.setState({ loginAuth: true, loading: false });
+                    localStorage.setItem('nickName', data.nickName);
+                    this.setState({ loading: false });
+                    this.setState(() => ({
+                        loginAuth: true
+                    }));
+
                 } else {
-                    this.setState({ alert: true });
+                    swal("Información!", "Usuario o clave incorrecto!", "info");
                 }
             })
             .catch((err) => {
                 Progress.hide();
-                console.log(err);
+                swal("Información!", "El usuario o la clave no son correctos!", "info");
             });
 
 
     };
+
+
 
     render() {
         if (this.state.loginAuth) {
@@ -100,7 +108,7 @@ class login extends Component {
                 </div>
             </div>
             <Progress.Component style={{ background: 'orange' }} thumbStyle={{ background: 'green' }} />
-            
+
         </div>
     }
 }

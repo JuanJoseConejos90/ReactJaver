@@ -1,15 +1,18 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
+import ListGroup from 'react-bootstrap/ListGroup'
 import Breadcrum from './../ui/Breadcrum';
 import Autocomplete from './../ui/Autocomplete';
 import Progress from "react-progress-2";
 import { userService as user } from './../../services/user.services';
 import swal from 'sweetalert';
+import Moment from 'react-moment';
 import Tabs from 'react-bootstrap/Tabs'
 import Tab from 'react-bootstrap/Tab';
-import TabContainer from 'react-bootstrap/TabContainer';
-import TabContent from 'react-bootstrap/TabContent';
-import TabPane from 'react-bootstrap/TabPane';
+import Modal from 'react-bootstrap/Modal';
+import Button from 'react-bootstrap/Button';
+import ButtonToolbar from 'react-bootstrap/ButtonToolbar';
+import config from './../../config';
 
 class actualizarUsuario extends Component {
 
@@ -29,37 +32,47 @@ class actualizarUsuario extends Component {
             mobilePhone: '',
             gender: '',
             pass: '',
-            company: '',
-            location: '',
-            rol: '',
-
+            companyId: '',
             departmentId: '',
+            rolId: '',
+            groupId: '',
+            locationId: '',
+            companyName: '',
             departmentName: '',
+            rolName: '',
+            groupName: '',
+            locationName: '',
+            typeCompany: 'company',
+            typeLocation: 'location',
+            typeRol: 'rol',
+            typeGroup: 'group',
             typeDepartment: 'department',
-
-            group: '',
             state: '',
             checkboxState: true,
             checkboxVIP: false,
             vip: '',
+            checkboxLoad: false,
+            checkboxBlocked: false,
             lockedOut: '',
             suggestionscompanys: [],
             suggestionslocations: [],
             suggestionsrols: [],
             suggestionsdepartments: [],
             suggestionsgroups: [],
+            rols: [],
+            groups: [],
+            userByRol: [],
+            userByGroup: [],
             placeholderCompanys: 'Compañias',
             placeholderLocations: 'Locaciones',
             placeholderRols: 'Roles',
             placeholderDepartment: 'Departamento',
             placeholderGroup: 'Grupo',
-            typeCompany: 'company',
-            typeLocation: 'location',
-            typeRol: 'rol',
-            typeDepartment: 'department',
-            typeGroup: 'group',
+            showModalRol: false,
+            showModalGroup: false,
             alert: false,
             loading: false,
+            redirectUsuarios: false,
             msg: '',
             formErrors: {
                 userName: "",
@@ -80,9 +93,21 @@ class actualizarUsuario extends Component {
         this.handleChange = this.handleChange.bind(this);
         this.toggleState = this.toggleState.bind(this);
         this.toggleVip = this.toggleVip.bind(this);
+        this.toggleChangeLoad = this.toggleChangeLoad.bind(this);
+        this.toggleLocked = this.toggleLocked.bind(this);
+        this.saveOrdenUserRol = this.saveOrdenUserRol.bind(this);
+        this.saveOrdenUserGroup = this.saveOrdenUserGroup.bind(this);
+        this.openModalRol = this.openModalRol.bind(this);
+        this.openModalGroup = this.openModalGroup.bind(this);
+        this.closeModalRol = this.closeModalRol.bind(this);
+        this.closeModalGroup = this.closeModalGroup.bind(this);
+        this.RolSeleted = this.RolSeleted.bind(this);
+        this.removeRolSeleted = this.removeRolSeleted.bind(this);
+        this.GroupSeleted = this.GroupSeleted.bind(this);
+        this.removeGroupSeleted = this.removeGroupSeleted.bind(this);
+        this.redirect = this.redirect.bind(this);
 
     }
-
 
     componentDidMount() {
 
@@ -93,8 +118,13 @@ class actualizarUsuario extends Component {
             if (params.userId) {
 
                 this.getUser(params.userId);
+                this.getAllCompanys();
+                this.getAllLocations();
+                this.getAllRols();
                 this.getAllDepartments();
-
+                this.getAllGroup();
+                this.getUserByRol(params.userId);
+                this.getUserByGroups(params.userId);
 
             } else {
                 swal("Información!", "No se obtenieron los datos del usuario!", "error");
@@ -105,9 +135,137 @@ class actualizarUsuario extends Component {
             console.log(error);
         }
 
-
     }
 
+
+    getAllCompanys() {
+        try {
+
+            user
+                .getCompanys()
+                .then(response => response.data)
+                .then(data => {
+                    if (data.code === 0) {
+                        this.suggestionscompanysFilters(data.companys);
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                });
+
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    suggestionscompanysFilters(data) {
+        try {
+
+            if (data.length > 0) {
+                let array = [];
+                data.map((company, index) => {
+                    var companySimple = {
+                        Id: company.companyId,
+                        Name: company.companyName
+                    }
+                    array.push(companySimple);
+                    return null;
+                });
+
+                this.setState({ suggestionscompanys: array });
+            }
+
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    getAllLocations() {
+        try {
+
+            user
+                .getLocations()
+                .then(response => response.data)
+                .then((data) => {
+                    if (data.code === 0) {
+                        this.suggestionsLocationsFilters(data.locations)
+                    }
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    suggestionsLocationsFilters(data) {
+        try {
+
+            if (data.length > 0) {
+                let array = [];
+                data.map((location, index) => {
+                    var locationSimple = {
+                        Id: location.locationId,
+                        Name: location.locationName
+                    }
+                    array.push(locationSimple);
+                    return null;
+                });
+
+                this.setState({ suggestionslocations: array });
+            }
+
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    getAllRols() {
+        try {
+
+            user.getrols()
+                .then(response => response.data)
+                .then((data) => {
+                    if (data.code === 0) {
+                        this.setState({ rols: data.rols });
+                    }
+
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    suggestionsRolsFilters(data) {
+        try {
+
+            if (data.length > 0) {
+                let array = [];
+                data.map((rol, index) => {
+                    var rolSimple = {
+                        Id: rol.rolId,
+                        Name: rol.rolName
+                    }
+                    array.push(rolSimple);
+                    return null;
+                });
+
+                this.setState({ suggestionsrols: array });
+            }
+
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
     getAllDepartments() {
         try {
@@ -152,6 +310,48 @@ class actualizarUsuario extends Component {
         }
     }
 
+    getAllGroup() {
+        try {
+
+            user.getGroups()
+                .then(response => response.data)
+                .then((data) => {
+                    if (data.code === 0) {
+                        this.setState({ groups: data.groups });
+                    }
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
+
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    suggestionsgroupsFilters(data) {
+
+        try {
+
+            if (data.length > 0) {
+                let array = [];
+                data.map((group, index) => {
+                    var groupSimple = {
+                        Id: group.groupId,
+                        Name: group.groupName
+                    }
+                    array.push(groupSimple);
+                    return null;
+                });
+
+                this.setState({ suggestionsgroups: array });
+            }
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
     getDepartment = (department) => {
 
         try {
@@ -161,6 +361,38 @@ class actualizarUsuario extends Component {
         }
     }
 
+    getCompany = (company) => {
+
+        try {
+            this.setState({ companyId: company })
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    getLocation = (location) => {
+        try {
+            this.setState({ locationId: location })
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    getGroup = (group) => {
+        try {
+            this.setState({ groupId: group })
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    getRol = (rol) => {
+        try {
+            this.setState({ rolId: rol })
+        } catch (error) {
+            console.log(error)
+        }
+    }
 
     getUser(userId) {
 
@@ -181,6 +413,53 @@ class actualizarUsuario extends Component {
         } catch (error) {
             console.log(error);
         }
+    }
+
+    getUserByRol(userId) {
+        try {
+
+            if (userId) {
+                user.getUserbyRols(userId)
+                    .then(response => response.data)
+                    .then((data) => {
+                        if (data.code === 0) {
+                            this.setState({ userByRol: data.users })
+                        }
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                    });
+
+            }
+
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    getUserByGroups(userId) {
+
+        try {
+
+            if (userId) {
+                user.getUserbyGroup(userId)
+                    .then(response => response.data)
+                    .then((data) => {
+                        if (data.code === 0) {
+                            this.setState({ userByGroup: data.users })
+                        }
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                    });
+            }
+
+
+        } catch (error) {
+            console.log(error);
+        }
+
     }
 
     renderInput(data) {
@@ -207,8 +486,16 @@ class actualizarUsuario extends Component {
                 state: data[0].state,
                 vip: data[0].vip,
                 lockedOut: data[0].lockedOut,
+                locationId: data[0].location,
+                locationName: data[0].locationName,
                 departmentId: data[0].departmentId,
-                departmentName: data[0].departmentName
+                departmentName: data[0].departmentName,
+                companyId: data[0].company,
+                companyName: data[0].companyName,
+                rolId: data[0].role,
+                rolName: data[0].rolName,
+                groupId: data[0].groupId,
+                groupName: data[0].groupName
             });
         } catch (error) {
             console.log(error);
@@ -218,7 +505,22 @@ class actualizarUsuario extends Component {
     handleSumit = (event) => {
 
         try {
-            event.preventDefault();
+            user.updatedUser(this.state.userId, this.state.userName, this.state.firstName, this.state.lastName, "INTEL", null, 1,
+                parseInt(this.state.department), 1, parseInt(this.state.locationId), parseInt(this.state.companyId), this.state.businessPhone,
+                this.state.homePhone, this.state.mobilePhone, this.state.email, this.state.gender,
+                "JJCS", config.date, "JJCS", config.date, "HH:MM:SS", "HH:MM:SS", this.state.pass, config.state, config.state, config.state, parseInt(this.state.rolId),
+                parseInt(this.state.groupId), config.state)
+                .then(response => response.data)
+                .then((data) => {
+                    if (data.code === 0) {
+                        swal("Información!", "Usuario actualizado de manera correcta!", "success");
+                    } else {
+                        swal("Información!", "Error en la actualización de usuario!", "error");
+                    }
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
         } catch (error) {
             console.log(error)
         }
@@ -228,7 +530,7 @@ class actualizarUsuario extends Component {
 
         try {
             event.preventDefault();
-            console.log(event.target.value);
+            this.setState({ [event.target.id]: event.target.value });
         } catch (error) {
             console.log(error)
         }
@@ -246,10 +548,247 @@ class actualizarUsuario extends Component {
         });
     }
 
+    toggleChangeLoad = (event) => {
+        this.setState({
+            checkboxLoad: event.target.checked
+        });
+    }
+
+    toggleLocked = (event) => {
+        this.setState({
+            checkboxBlocked: event.target.checked
+        });
+    }
+
+    openModalRol = () => {
+        this.setState({ showModalRol: true });
+    }
+
+    openModalGroup = () => {
+        this.setState({ showModalGroup: true });
+    }
+
+    closeModalRol = () => {
+        this.setState({ showModalRol: false });
+    };
+
+    closeModalGroup = () => {
+        this.setState({ showModalGroup: false });
+    };
+
+    saveOrdenUserRol = () => {
+        try {
+
+            this.deleteRolUser(this.state.userId);
+            this.state.userByRol.map((rol, index) => {
+                this.saveRolByUser(rol);
+                return swal("Información!", "Roles asignados al usuario de manera correcta!", "success");
+            });
+            this.setState({ showModalRol: false });
+
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    saveOrdenUserGroup = () => {
+        try {
+
+            this.deleteGroupUser(this.state.userId);
+            this.state.userByGroup.map((group, index) => {
+                this.saveGroupByUser(group);
+                return swal("Información!", "Grupos asignados al usuario de manera correcta!", "success");
+            });
+            this.setState({ showModalGroup: false });
+
+
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    RolSeleted(key, index) {
+
+        try {
+
+            const rols = this.state.rols;
+            rols.splice(index, 1);
+            this.setState({ rols });
+
+            var arrays = this.state.userByRol.slice();
+            var userRol = {
+                'userId': this.state.userId,
+                'rolId': key.rolId,
+                'rolName': key.rolName,
+                'createdBy': key.createdBy,
+                'created': key.created,
+                'updateBy': key.updateBy,
+                'updated': key.updated
+            };
+            arrays.push(userRol);
+            this.setState({ userByRol: arrays });
+
+
+
+        } catch (error) {
+            console.log(error);
+        }
+
+
+    };
+
+    GroupSeleted(key, index) {
+
+        try {
+
+            const groups = this.state.groups;
+            groups.splice(index, 1);
+            this.setState({ groups });
+
+            var arrays = this.state.userByGroup.slice();
+            var usergroup = {
+                'userId': this.state.userId,
+                'groupId': key.groupId,
+                'groupName': key.groupName,
+                'createdBy': key.createdBy,
+                'created': key.created,
+                'updateBy': key.updateBy,
+                'updated': key.updated
+            };
+            arrays.push(usergroup);
+            this.setState({ userByGroup: arrays });
+
+
+
+        } catch (error) {
+            console.log(error);
+        }
+
+
+    };
+
+    removeRolSeleted(key, index) {
+
+        try {
+
+            const userByRol = this.state.userByRol;
+            userByRol.splice(index, 1);
+            this.setState({ userByRol });
+            console.log(key);
+
+        } catch (error) {
+            console.log(error);
+        }
+
+
+    };
+
+    removeGroupSeleted(key, index) {
+
+        try {
+
+            const userByGroup = this.state.userByGroup;
+            userByGroup.splice(index, 1);
+            this.setState({ userByGroup });
+            console.log(key);
+
+        } catch (error) {
+            console.log(error);
+        }
+
+
+    };
+
+    saveRolByUser(UserbyRol) {
+        try {
+            user.createdUserbyRol(UserbyRol)
+                .then(response => response.data)
+                .then((data) => {
+                    if (data.code === 0) {
+                        console.log('exitoso');
+                    }
+
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    deleteRolUser(userId) {
+        try {
+
+            user.deleteUserbyRol(userId)
+                .then(response => response.data)
+                .then((data) => {
+                    if (data.code === 0) {
+                        console.log('borrado exitoso');
+                    }
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
+
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    saveGroupByUser(userByGroup) {
+        try {
+            user.createdUserbyGroup(userByGroup)
+                .then(response => response.data)
+                .then((data) => {
+                    if (data.code === 0) {
+                        console.log('exitoso');
+                    }
+
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    deleteGroupUser(userId) {
+        try {
+
+            user.deleteUserbyGroup(userId)
+                .then(response => response.data)
+                .then((data) => {
+                    if (data.code === 0) {
+                        console.log('borrado exitoso');
+                    }
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
+
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    redirect = event => {
+        this.setState(() => ({
+            redirectUsuarios: true
+        }));
+
+    }
 
     render() {
-        const { usuario } = this.state;
-        console.log(usuario);
+        if (this.state.redirectUsuarios) {
+
+             return <Redirect from="/actualizarUsuario/:userId" to="/usuarios" exact /> 
+        }
         return (
             <div className="container-fluid" data-panel="containerUpdateUser">
                 <div className="row">
@@ -265,7 +804,10 @@ class actualizarUsuario extends Component {
                                             <h2>Actualizar Usuario:{this.state.firstName}</h2>
                                         </div>
                                         <div className="col-2 pull-right">
-                                            <button className="btn btn-primary">Actualizar</button>
+                                            <ButtonToolbar>
+                                                <Button variant="primary" size="sm">Guardar</Button>
+                                                <Button variant="light" size="sm" onClick={this.redirect}>Cancelar</Button>
+                                            </ButtonToolbar>
                                         </div>
                                     </div>
                                 </div>
@@ -273,13 +815,13 @@ class actualizarUsuario extends Component {
                                     <div className="row">
                                         <div className="col-8">
                                             <div className="form-group row">
-                                                <label htmlFor="nickName" className="col-2 col-form-label">ID Usuario:</label>
+                                                <label htmlFor="userName" className="col-2 col-form-label">ID Usuario:</label>
                                                 <div className="col-4">
                                                     <input type="text"
-                                                        id="nickName"
-                                                        name="nickName"
+                                                        id="userName"
+                                                        name="userName"
                                                         className="form-control"
-                                                        placeholder="nickName"
+                                                        placeholder="userName"
                                                         onChange={this.handleChange}
                                                         value={this.state.userName} />
                                                 </div>
@@ -300,13 +842,13 @@ class actualizarUsuario extends Component {
                                     <div className="row">
                                         <div className="col-8">
                                             <div className="form-group row">
-                                                <label htmlFor="nickName" className="col-2 col-form-label">Nombre:</label>
+                                                <label htmlFor="firstName" className="col-2 col-form-label">Nombre:</label>
                                                 <div className="col-4">
                                                     <input type="text"
-                                                        id="nickName"
-                                                        name="nickName"
+                                                        id="firstName"
+                                                        name="firstName"
                                                         className="form-control"
-                                                        placeholder="nickName"
+                                                        placeholder="firstName"
                                                         onChange={this.handleChange}
                                                         value={this.state.firstName} />
                                                 </div>
@@ -364,7 +906,7 @@ class actualizarUsuario extends Component {
                                                         userInput={this.state.departmentName} />
                                                 </div>
 
-                                                <label htmlFor="businessPhone" className="col-2 col-form-label">Teléfono:</label>
+                                                <label htmlFor="businessPhone" className="col-2 col-form-label">Teléfono Oficina:</label>
                                                 <div className="col-4">
                                                     <input type="text"
                                                         id="businessPhone"
@@ -379,17 +921,176 @@ class actualizarUsuario extends Component {
                                         </div>
                                     </div>
 
+                                    <div className="row">
+                                        <div className="col-8">
+                                            <div className="form-group row">
+                                                <label htmlFor="lastName" className="col-2 col-form-label">Compañias:</label>
+                                                <div className="col-4">
+                                                    <Autocomplete suggestions={this.state.suggestionscompanys}
+                                                        getCompany={this.getCompany}
+                                                        type={this.state.typeCompany}
+                                                        userInput={this.state.companyName} />
+                                                </div>
+
+                                                <label htmlFor="mobilePhone" className="col-2 col-form-label">Celular:</label>
+                                                <div className="col-4">
+                                                    <input type="text"
+                                                        id="mobilePhone"
+                                                        name="mobilePhone"
+                                                        className="form-control"
+                                                        onChange={this.handleChange}
+                                                        value={this.state.mobilePhone} />
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="row">
+                                        <div className="col-8">
+                                            <div className="form-group row">
+                                                <label htmlFor="lastName" className="col-2 col-form-label">Locaciones:</label>
+                                                <div className="col-4">
+                                                    <Autocomplete suggestions={this.state.suggestionslocations}
+                                                        getLocation={this.getLocation}
+                                                        type={this.state.typeLocation}
+                                                        userInput={this.state.locationName} />
+                                                </div>
+
+                                                <label htmlFor="homePhone" className="col-2 col-form-label">Teléfono Casa:</label>
+                                                <div className="col-4">
+                                                    <input type="text"
+                                                        id="homePhone"
+                                                        name="homePhone"
+                                                        className="form-control"
+                                                        onChange={this.handleChange}
+                                                        value={this.state.homePhone} />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
                                 </div>
                                 <div className="card-footer">
                                     <Tabs defaultActiveKey="autenticacion" transition={false} id="noanim-tab-example">
                                         <Tab eventKey="autenticacion" title="Autenticación">
-                                            <h1>home</h1>
+                                            <div className="row tabsRow">
+                                                <div className="col-8">
+                                                    <div className="form-group row">
+                                                        <label htmlFor="pass" className="col-2 col-form-label">Contraseña:</label>
+                                                        <div className="col-4">
+                                                            <input type="password"
+                                                                id="pass"
+                                                                name="pass"
+                                                                className="form-control"
+                                                                onChange={this.handleChange}
+                                                                value={this.state.pass} />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="row">
+                                                <div className="col-8 tabsCheckChange">
+                                                    <div className="form-group row">
+                                                        <div className="form-check form-check-inline">
+                                                            <label className="form-check-label" htmlFor="defaultCheck1">Cambiar Contraseña al ingresar:</label>
+                                                            <input className="form-check-input valuecheckboxActive"
+                                                                type="checkbox"
+                                                                id="checkActive" onClick={(event) => this.toggleChangeLoad(event)}
+                                                                defaultChecked={this.state.checkboxLoad}
+                                                                value={this.state.checkboxLoad} />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="row">
+                                                <div className="col-8 tabsCheckChange">
+                                                    <div className="form-group row">
+                                                        <div className="form-check form-check-inline">
+                                                            <label className="form-check-label" htmlFor="defaultCheck1">Bloquear:</label>
+                                                            <input className="form-check-input valuecheckboxActive"
+                                                                type="checkbox"
+                                                                id="checkActive" onClick={(event) => this.toggleLocked(event)}
+                                                                defaultChecked={this.state.checkboxBlocked}
+                                                                value={this.state.checkboxBlocked} />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </Tab>
                                         <Tab eventKey="roles" title="Roles">
-                                            <h1>roles</h1>
+                                            <div className="row">
+                                                <div className="col-12 tabsRow">
+                                                    <ButtonToolbar>
+                                                        <Button variant="light" size="sm" className="btncog" onClick={this.openModalRol}><i className="fa fa-cog"></i></Button>
+                                                        <Button variant="light" size="sm" className="btnTodos">Todos</Button>
+                                                    </ButtonToolbar>
+                                                </div>
+                                            </div>
+                                            <div className="row">
+                                                <table className="table table-striped base-table" key="tableUser">
+                                                    <thead>
+                                                        <tr key="thTable">
+                                                            <th>Rol</th>
+                                                            <th>Creado</th>
+                                                            <th>Fecha Actualización</th>
+                                                            <th>Actualizado</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody ref={this.body}>
+                                                        {this.state.userByRol.map((rol, index) => {
+                                                            return (
+                                                                <tr key={index}>
+                                                                    <td>{rol.rolName}</td>
+                                                                    <td>{rol.createdBy}</td>
+                                                                    <td> <Moment format="YYYY/MM/DD">
+                                                                        {rol.updated}
+                                                                    </Moment></td>
+                                                                    <td>{rol.updateBy}</td>
+                                                                </tr>
+                                                            );
+                                                        })}
+                                                    </tbody>
+                                                </table>
+                                            </div>
                                         </Tab>
                                         <Tab eventKey="grupos" title="Grupos">
-                                            <h1>grupos</h1>
+                                            <div className="row">
+                                                <div className="col-12 tabsRow">
+                                                    <ButtonToolbar>
+                                                        <Button variant="light" size="sm" className="btncog" onClick={this.openModalGroup}><i className="fa fa-cog"></i></Button>
+                                                        <Button variant="light" size="sm" className="btnTodos">Todos</Button>
+                                                    </ButtonToolbar>
+                                                </div>
+                                            </div>
+                                            <div className="row">
+                                                <table className="table table-striped base-table" key="tableUser">
+                                                    <thead>
+                                                        <tr key="thTable">
+                                                            <th>Grupo</th>
+                                                            <th>Creado</th>
+                                                            <th>Fecha Actualización</th>
+                                                            <th>Actualizado</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody ref={this.body}>
+                                                        {this.state.userByGroup.map((group, index) => {
+                                                            return (
+                                                                <tr key={index}>
+                                                                    <td>{group.groupName}</td>
+                                                                    <td>{group.createdBy}</td>
+                                                                    <td> <Moment format="YYYY/MM/DD">
+                                                                        {group.updated}
+                                                                    </Moment></td>
+                                                                    <td>{group.updateBy}</td>
+                                                                </tr>
+                                                            );
+                                                        })}
+                                                    </tbody>
+                                                </table>
+                                            </div>
                                         </Tab>
                                     </Tabs>
                                 </div>
@@ -397,6 +1098,98 @@ class actualizarUsuario extends Component {
                         </form>
                     </div>
                 </div>
+                <Modal size="lg" show={this.state.showModalRol} onHide={this.closeModalRol} dialogClassName="modal-90w" aria-labelledby="contained-modal-title-vcenter">
+                    <Modal.Header closeButton>
+                        <Modal.Title id="contained-modal-title-vcenter">Roles</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <div className="container">
+                            <div className="row">
+                                <div className="col-6">
+                                    <div className="card">
+                                        <div className="card-head colDispo">Roles Disponibles</div>
+                                        <div className="card-body bodyDispo">
+                                            <ListGroup id="listModalRol">
+                                                {this.state.rols.map((rol, index) =>
+                                                    <ListGroup.Item key={index} onClick={() => this.RolSeleted(rol, index)}>
+                                                        {rol.rolName.trim()}
+                                                    </ListGroup.Item>
+                                                )}
+                                            </ListGroup>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="col-6">
+                                    <div className="card">
+                                        <div className="card-head colSelect">Roles Asignados</div>
+                                        <div className="card-body bodySelect">
+                                            <ListGroup id="listModal">
+                                                {this.state.userByRol.map((rol, index) =>
+                                                    <ListGroup.Item key={index} onClick={() => this.removeRolSeleted(rol, index)}>
+                                                        <span className="btnTitle">{rol.rolName.trim()}</span>
+                                                    </ListGroup.Item>
+                                                )}
+                                            </ListGroup>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </Modal.Body>
+                    <Modal.Footer className="btnModalFoters">
+                        <ButtonToolbar>
+                            <Button variant="light" size="sm" onClick={this.closeModalRol}>Cancelar</Button>
+                            <Button variant="primary" size="sm" onClick={this.saveOrdenUserRol} >Guardar</Button>
+                        </ButtonToolbar>
+                    </Modal.Footer>
+                </Modal>
+
+                <Modal size="lg" show={this.state.showModalGroup} onHide={this.closeModalGroup} dialogClassName="modal-90w" aria-labelledby="contained-modal-title-vcenter">
+                    <Modal.Header closeButton>
+                        <Modal.Title id="contained-modal-title-vcenter">Grupos</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <div className="container">
+                            <div className="row">
+                                <div className="col-6">
+                                    <div className="card">
+                                        <div className="card-head colDispo">Grupos Disponibles</div>
+                                        <div className="card-body bodyDispo">
+                                            <ListGroup id="listModalRol">
+                                                {this.state.groups.map((group, index) =>
+                                                    <ListGroup.Item key={index} onClick={() => this.GroupSeleted(group, index)}>
+                                                        {group.groupName.trim()}
+                                                    </ListGroup.Item>
+                                                )}
+                                            </ListGroup>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="col-6">
+                                    <div className="card">
+                                        <div className="card-head colSelect">Grupos Asignados</div>
+                                        <div className="card-body bodySelect">
+                                            <ListGroup id="listModal">
+                                                {this.state.userByGroup.map((group, index) =>
+                                                    <ListGroup.Item key={index} onClick={() => this.removeGroupSeleted(group, index)}>
+                                                        <span className="btnTitle">{group.groupName.trim()}</span>
+                                                    </ListGroup.Item>
+                                                )}
+                                            </ListGroup>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </Modal.Body>
+                    <Modal.Footer className="btnModalFoters">
+                        <ButtonToolbar>
+                            <Button variant="light" size="sm" onClick={this.closeModalGroup}>Cancelar</Button>
+                            <Button variant="primary" size="sm" onClick={this.saveOrdenUserGroup} >Guardar</Button>
+                        </ButtonToolbar>
+                    </Modal.Footer>
+                </Modal>
+
                 <Progress.Component style={{ background: 'orange' }} thumbStyle={{ background: 'green' }} />
             </div >
         );

@@ -4,20 +4,20 @@ const doFilter = (item, filter) => {
     let { property } = filter;
     let response = false;
 
-    switch (operador) {
-        case "Is":
+    switch (operador.toUpperCase()) {
+        case "IS":
             response = item[property].includes(value);
             break;
-        case "startWith":
+        case "STARTWITH":
             response = item[property].startsWith(value);
             break;
-        case "endWith":
+        case "ENDWITH":
             response = item[property].endsWith(value);
             break;
-        case "contain":
+        case "CONTAIN":
             response = item[property].includes(value);
             break;
-        case "Notcontain":
+        case "NOTCONTAIN":
             response = !item[property].includes(value);
             break;
         default:

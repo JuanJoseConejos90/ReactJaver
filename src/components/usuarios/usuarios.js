@@ -19,7 +19,7 @@ import createFilter from './../../helpers/filter';
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import swal from 'sweetalert';
-//import $ from 'jquery';
+import $ from 'jquery';
 
 
 class usuarios extends Component {
@@ -33,12 +33,9 @@ class usuarios extends Component {
             keysModal: [],
             optionsModal: [],
             keysSelected: [],
-            operadores: [{ name: "Is", value: "Is" }, { name: "startWith", value: "startWith" }, { name: "endWith", value: "endWith" },
-            { name: "contain", value: "contain" }, { name: "Notcontain", value: "Notcontain" }, { name: "empty", value: "empty" },
-            { name: "Notempty", value: "Notempty" }, { name: "greater or equal", value: "greater or equal" }, { name: "less or equal", value: "less or equal" }],
-            filters: [{ property: "firstName", value: "A", operador: "startWith" }, { property: "state", value: "I", operador: "Is" }],
             filterSearch: [],
             filtersDb: [],
+            columnsType: [],
             filterSettings: [{ property: "", value: "", operador: "" }],
             filterCount: 0,
             filterCreated: 1,
@@ -142,23 +139,7 @@ class usuarios extends Component {
 
         try {
 
-            Progress.show();
-            user.getusers()
-                .then(response => response.data)
-                .then((data) => {
-                    if (data.code === 0) {
-                        this.setState({ users: data.users });
-                        this.getItemHeader(data.users[0]);
-                        this.getOptionsModal(data.users[0]);
-                        this.countFilter();
-                        this.getFiltersDb();
-                        Progress.hide();
-                    }
-                })
-                .catch((err) => {
-                    Progress.hide();
-                    console.log(err);
-                });
+           this.getSettings();
 
         } catch (error) {
             console.log(error);
@@ -166,15 +147,83 @@ class usuarios extends Component {
 
     }
 
-    getFiltersDb() {
+   async getSettings(){
 
         try {
 
-            user.getFilterbyDataType("varchar")
+            await this.getColumnsType();
+            await this.getUsers();
+    
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+ getUsers(){
+        try {
+
+            user.getusers()
+            .then(response => response.data)
+            .then((data) => {
+                if (data.code === 0) {
+                      this.setState({ users: data.users });
+                      this.getItemHeader(data.users[0]);
+                      this.getOptionsModal(data.users[0]);
+                      this.getFiltersDb(data.users[0])
+                      this.countFilter();
+                      const { filterSettings } = this.state;
+                      let key =  Object.keys(data.users[0]);
+                      filterSettings[0].property = key[0];
+                      this.setState({ filterSettings });
+                      Progress.hide();
+                }
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+
+            
+        } catch (error) {
+            console.log(error);
+        }
+    }
+    getColumnsType() {
+
+        try {
+
+            user.getInfotbUsers()
                 .then(response => response.data)
                 .then((data) => {
                     if (data.code === 0) {
-                        this.setState({ filtersDb: data.filters })
+                        this.setState({ columnsType: data.colums });
+                    }
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
+
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    getFiltersDb(data) {
+
+        try {
+
+            var fistType = Object.keys(data);
+            let columType = this.getTypebyName(fistType[0]);
+            let tipo = (columType[0].tipo != null) ? columType[0].tipo : "varchar";
+            user.getFilterbyDataType(tipo)
+                .then(response => response.data)
+                .then((data) => {
+                    if (data.code === 0) {
+                        this.setState({ filtersDb: data.filters });
+                        const { filterSettings } = this.state;
+                        filterSettings[0].operador = data.filters[0].descriptionING;
+                        this.setState({ filterSettings });
+
                     }
                 })
                 .catch((err) => {
@@ -242,12 +291,13 @@ class usuarios extends Component {
 
             let header = Object.keys(this.state.users[0]);
             return header.map((key, index) => {
-                var value = (this.isDate(this.state.users[indice][key]) ? this.parseMoment(this.state.users[indice][key]) : this.state.users[indice][key])
+                var value = (this.isDate(this.state.users[indice][key]) ? this.parseMoment(this.state.users[indice][key]) : this.state.users[indice][key]);
+                var path = "/actualizarUsuario/" + value;
                 if (index === 0) {
                     return <td key={index}>
                         <div className="form-check">
                             <input type="checkbox" className="form-check-input" id="checkId" />
-                            <Link to={`/actualizarUsuario/${value}`}>{value}</Link>
+                            <Link to={path}>{value}</Link>
                         </div>
                     </td>
                 } else {
@@ -363,6 +413,18 @@ class usuarios extends Component {
         }
     }
 
+    getTypebyName(type) {
+        try {
+
+            let data = this.state.columnsType;
+            let value = data.filter(x => x.columna === type);
+            return value;
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
     renderListOptions() {
         try {
 
@@ -370,7 +432,7 @@ class usuarios extends Component {
                 let header = Object.keys(this.state.users[0]);
                 return header.map((key, index) => {
                     return (
-                        <option key={index}>{key}</option>
+                        <option key={index} value={index} >{key}</option>
                     )
                 })
             }
@@ -402,18 +464,19 @@ class usuarios extends Component {
             Progress.show();
             const { filterSettings } = this.state;
             let index = event.target.dataset.index;
-            filterSettings[index].property = event.target.value;
+            var property = $(`#property-${index} option:selected`).text();
+            filterSettings[index].property = property;
             this.setState({ filterSettings });
-            let id = event.target.id;
-
-            user.getFilterbyDataType("int")
+            let indexColum = event.target.value;
+            let type = event.currentTarget[indexColum].innerHTML;
+            let columType = this.getTypebyName(type);
+            user.getFilterbyDataType(columType[0].tipo)
                 .then(response => response.data)
                 .then((data) => {
                     if (data.code === 0) {
-                        this.changeFilterOPTIONS(id, data.filters)
+                        this.changeFilterOPTIONS(index, data.filters)
                         this.forceUpdate();
                         Progress.hide();
-
                     }
                 })
                 .catch((err) => {
@@ -429,20 +492,13 @@ class usuarios extends Component {
 
     changeFilterOPTIONS(id, data) {
         try {
+            let select = $(`#operador-${id}`);
+            select.empty();
 
-            this.setState({ filtersDb: data });
-            //let jq = `#${id}`;
-            //let jquery= $(jq);
-            //jquery.empty();
-            //let select= $('#operador-0');
-            //select.empty();
-
-            //data.map((filter, index) => {
-            //(
-            //select.append(<option key={filter.descriptionING}>{filter.descriptionING}</option>)
-            //)
-            //})
-
+            for (let index = 0; index < data.length; index++) {
+                var option = '<option value="' + index + '">' + data[index].descriptionING + '</option>';
+                select.append(option)
+            }
         } catch (error) {
             console.log(error)
         }
@@ -452,10 +508,14 @@ class usuarios extends Component {
 
         try {
 
+            Progress.show();
+            event.preventDefault();
             const { filterSettings } = this.state;
             let index = event.target.dataset.index;
-            filterSettings[index].operador = event.target.value;
+            var operador = $(`#operador-${index} option:selected`).text();
+            filterSettings[index].operador = operador;
             this.setState({ filterSettings });
+            Progress.hide();
 
         } catch (error) {
             console.log(error)
@@ -469,7 +529,7 @@ class usuarios extends Component {
 
             const { filterSettings } = this.state;
             let index = event.target.dataset.index;
-            filterSettings[index].value = event.target.value;
+            filterSettings[index].value = event.target.value.toUpperCase();
             this.setState({ filterSettings });
 
         } catch (error) {
@@ -478,7 +538,7 @@ class usuarios extends Component {
 
     };
 
-    async runFilter(event) {
+    runFilter(event) {
 
         try {
 
@@ -490,15 +550,6 @@ class usuarios extends Component {
                     event.preventDefault();
                     Progress.show();
                     var datos = this.state.users;
-                    var filtercolum = this.state.filterColum;
-                    var filterOperador = this.state.filterOperador;
-                    var filterValue = this.state.filterValue;
-                    let array = [];
-                    var filtersValuesJSON = { property: filtercolum, value: filterValue, operador: filterOperador };
-                    array.push(filtersValuesJSON);
-                    var filtersCreated = this.state.filterSettings;
-                    await this.setState({ filterSearch: filtersCreated });
-                    //const { filterSearch } = this.state;
                     const { filterSettings } = this.state;
                     datos = datos.filter(createFilter(...filterSettings));
                     this.setState({ users: datos });
@@ -520,28 +571,23 @@ class usuarios extends Component {
     loadData = (event) => {
 
         try {
-
-            if (this.state.users.length > 0) {
-                event.preventDefault();
-                Progress.show();
-                user.getusers()
-                    .then(response => response.data)
-                    .then((data) => {
-                        if (data.code === 0) {
-                            this.setState({ users: data.users, filterCount: 0, filterCreated: 0 });
-                            this.getItemHeader(data.users[0]);
-                            this.getOptionsModal(data.users[0]);
-                            this.countFilter();
-                            Progress.hide();
-                        }
-                    })
-                    .catch((err) => {
-                        console.log(err);
+            event.preventDefault();
+            Progress.show();
+            user.getusers()
+                .then(response => response.data)
+                .then((data) => {
+                    if (data.code === 0) {
+                        this.setState({ users: data.users, filterCount: 0, filterCreated: 0 });
+                        this.getItemHeader(data.users[0]);
+                        this.getOptionsModal(data.users[0]);
+                        this.countFilter();
                         Progress.hide();
-                    });
-            }
-
-
+                    }
+                })
+                .catch((err) => {
+                    console.log(err);
+                    Progress.hide();
+                });
 
         } catch (error) {
             console.log(error);
@@ -559,12 +605,12 @@ class usuarios extends Component {
                         <Form id={index}>
                             <Row id={index}>
                                 <Col>
-                                    <Form.Control as="select" id={propertyId} data-index={index} className="property" onChange={this.handleChangeSelectColumn} value={filter.property}>
+                                    <Form.Control as="select" id={propertyId} data-index={index} className="operador" onChange={this.handleChangeSelectColumn}>
                                         {this.renderListOptions()}
                                     </Form.Control>
                                 </Col>
                                 <Col>
-                                    <Form.Control as="select" id={operadorId} data-index={index} className="operador" onChange={this.handleChangeSelectOperador} value={filter.operador}>
+                                    <Form.Control as="select" id={operadorId} data-index={index} className="operador" onChange={this.handleChangeSelectOperador}>
                                         {this.renderFilterOptions()}
                                     </Form.Control>
                                 </Col>
@@ -714,9 +760,9 @@ class usuarios extends Component {
                                 </table>
                                 <div className="row">
                                     <div className="col-6 DropdownButtonActions">
-                                        <DropdownButton id="dropdown-item-button" 
-                                                        drop={'right'}
-                                                        title="Selecciones acciones">
+                                        <DropdownButton id="dropdown-item-button"
+                                            drop={'right'}
+                                            title="Selecciones acciones">
                                             <Dropdown.Item as="button">Eliminar</Dropdown.Item>
                                         </DropdownButton>
                                     </div>

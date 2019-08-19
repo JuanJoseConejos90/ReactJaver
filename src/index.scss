@@ -644,15 +644,29 @@ a.article:hover {
 
         .valuecheckboxActive {
             margin-left: 79px !important;
-            
+
         }
 
         .valuecheckboxVip {
             margin-left: 97px !important;
-            
+
         }
 
 
+    }
+
+    .card-footer {
+        .tabsRow {
+            margin-top: 3%;
+        }
+
+        .tabsCheckChange {
+            padding-left: 55px;
+        }
+
+        .valuecheckboxActive {
+            margin-left: 20px;
+        }
     }
 
     .tittleContent {
@@ -662,7 +676,7 @@ a.article:hover {
 
 }
 
-[data-type='searchFilters']{
+[data-type='searchFilters'] {
     cursor: pointer !important;
 }
 
@@ -764,6 +778,30 @@ a.article:hover {
 
 .btnTitle {
     margin-right: 10px;
+}
+
+.navBarsection {
+    background-color: #fff !important;
+}
+
+.titulo-home {
+    font-weight: bold !important;
+    font-size: 3em;
+    margin-left: 30px;
+}
+
+.detalleusuario{
+    margin-top: 15px !important;
+    text-align: center !important;
+    padding-left: 180px !important;
+}
+
+.toolMenu{
+    margin-left: 15px !important;
+}
+
+.tab-content{
+    padding-top: 15px !important;
 }
 
 

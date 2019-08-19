@@ -8,16 +8,15 @@ import usuarios from './components/usuarios/usuarios';
 import usuarioInfo from './components/usuarios/usuarioInfo';
 import PrivateRoute from './helpers/PrivateRoute';
 import './index.scss';
-import 'font-awesome/css/font-awesome.min.css';
 import * as serviceWorker from './serviceWorker';
 
 const routing = (
     <BrowserRouter>
         <Switch>
             <Route exact path="/" component={login} />
-            <PrivateRoute exact path="/home" component={home} />
-            <PrivateRoute exact path="/usuarios" component={usuarios} />
-            <PrivateRoute exact path="/usuarioInfo" component={usuarioInfo} />
+            <Route exact path="/home" component={home} />
+            <Route exact path="/usuarios" component={usuarios} />
+            <Route exact path="/usuarioInfo" component={usuarioInfo} />
             <Route component={notfound} />
         </Switch>
     </BrowserRouter>

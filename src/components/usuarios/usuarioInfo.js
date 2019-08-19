@@ -1,6 +1,14 @@
 import React, { Component } from 'react';
 import { userService as user } from './../../services/user.services';
 import Modal from 'react-bootstrap/Modal';
+import Breadcrum from './../ui/Breadcrum';
+import Progress from "react-progress-2";
+import swal from 'sweetalert';
+import Tabs from 'react-bootstrap/Tabs'
+import Tab from 'react-bootstrap/Tab';
+import Figure from 'react-bootstrap/Figure';
+import Button from 'react-bootstrap/Button';
+import ButtonToolbar from 'react-bootstrap/ButtonToolbar';
 
 class usuarioInfo extends Component {
 
@@ -11,11 +19,23 @@ class usuarioInfo extends Component {
             userName: '',
             job: 'Soporte Tecnico',
             location: 'Sabana, San Jose CR',
-            smShow: false
+            businessPhone: "",
+            homePhone: "",
+            mobilePhone: "",
+            idioma:"",
+            zona:"",
+            passActual:"",
+            passNuevo:"",
+            passReNuevo:"",
+            smShow: false,
+            inicio: 'Inicio',
+            modulo: 'Gestión Usuarios',
+            componente: 'Información'
         };
 
 
         this.OpenModal = this.OpenModal.bind(this);
+        this.handleChange = this.handleChange.bind(this);
 
 
     }
@@ -45,10 +65,26 @@ class usuarioInfo extends Component {
         });
     }
 
+    handleChange = (event) => {
+        try {
+            event.preventDefault();
+            const { name, value } = event.target;
+            console.log(name, value);
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
     render() {
         let smClose = () => this.setState({ smShow: false });
         return (
             <div className="container-fluid" data-panel="containerAvatar">
+                <div className="row">
+                    <div className="col-12">
+                        <Breadcrum inicio={this.state.inicio} modulo={this.state.modulo} componente={this.state.componente} />
+                    </div>
+                </div>
                 <div className="row">
                     <div className="col-2">
                         <div className="card">
@@ -137,7 +173,6 @@ class usuarioInfo extends Component {
                                         </div>
                                     </div>
                                 </div>
-                                <hr></hr>
 
                                 <div className="row rowInfoAvatar">
                                     <div className="col-1">
@@ -155,9 +190,142 @@ class usuarioInfo extends Component {
                                 </div>
 
                             </div>
+                            <div className="card-footer">
+                                <Tabs defaultActiveKey="cuenta" transition={false} id="noanim-tab-example">
+                                    <Tab eventKey="cuenta" title="Cuenta">
+                                        <div className="row">
+                                            <div className="col-8">
+                                                <div className="form-group row">
+                                                    <label htmlFor="pass" className="col-3 col-form-label">Ubicacion:</label>
+                                                    <div className="col-4">
+                                                        <input type="text"
+                                                            id="ubicacion"
+                                                            name="ubicacion"
+                                                            className="form-control"
+                                                            onChange={this.handleChange}
+                                                            value={this.state.location} />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="row">
+                                            <div className="col-8">
+                                                <div className="form-group row">
+                                                    <label htmlFor="pass" className="col-3 col-form-label">Telefono Oficina:</label>
+                                                    <div className="col-4">
+                                                        <input type="text"
+                                                            id="ubicacion"
+                                                            name="ubicacion"
+                                                            className="form-control"
+                                                            onChange={this.handleChange}
+                                                            value={this.state.businessPhone} />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="row">
+                                            <div className="col-8">
+                                                <div className="form-group row">
+                                                    <label htmlFor="pass" className="col-3 col-form-label">Telefono Celular:</label>
+                                                    <div className="col-4">
+                                                        <input type="text"
+                                                            id="ubicacion"
+                                                            name="ubicacion"
+                                                            className="form-control"
+                                                            onChange={this.handleChange}
+                                                            value={this.state.mobilePhone} />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </Tab>
+                                    <Tab eventKey="Configuracion" title="Configuración">
+                                    <div className="row">
+                                            <div className="col-8">
+                                                <div className="form-group row">
+                                                    <label htmlFor="pass" className="col-3 col-form-label">Idioma:</label>
+                                                    <div className="col-4">
+                                                        <input type="text"
+                                                            id="idioma"
+                                                            name="idioma"
+                                                            className="form-control"
+                                                            onChange={this.handleChange}
+                                                            value={this.state.idioma} />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="row">
+                                            <div className="col-8">
+                                                <div className="form-group row">
+                                                    <label htmlFor="pass" className="col-3 col-form-label">Zona Horaria:</label>
+                                                    <div className="col-4">
+                                                        <input type="text"
+                                                            id="zona"
+                                                            name="zona"
+                                                            className="form-control"
+                                                            onChange={this.handleChange}
+                                                            value={this.state.zone} />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </Tab>
+                                    <Tab eventKey="CambiarPass" title="Cambiar contraseña">
+                                    <div className="row">
+                                            <div className="col-8">
+                                                <div className="form-group row">
+                                                    <label htmlFor="pass" className="col-3 col-form-label">contraseña Actual:</label>
+                                                    <div className="col-4">
+                                                        <input type="text"
+                                                            id="zona"
+                                                            name="zona"
+                                                            className="form-control"
+                                                            onChange={this.handleChange}
+                                                            value={this.state.passActual} />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="row">
+                                            <div className="col-8">
+                                                <div className="form-group row">
+                                                    <label htmlFor="pass" className="col-3 col-form-label">contraseña Nueva:</label>
+                                                    <div className="col-4">
+                                                        <input type="text"
+                                                            id="zona"
+                                                            name="zona"
+                                                            className="form-control"
+                                                            onChange={this.handleChange}
+                                                            value={this.state.passNuevo} />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="row">
+                                            <div className="col-8">
+                                                <div className="form-group row">
+                                                <label htmlFor="pass" className="col-3 col-form-label">contraseña Nueva:</label>
+                                                    <div className="col-4">
+                                                        <input type="text"
+                                                            id="zona"
+                                                            name="zona"
+                                                            className="form-control"
+                                                            onChange={this.handleChange}
+                                                            value={this.state.passReNuevo} />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                    </Tab>
+                                </Tabs>
+
+                            </div>
                         </div>
                     </div>
                 </div>
+
                 <Modal
                     size="sm"
                     show={this.state.smShow}
