@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { userService as user } from '../../services/user.services';
 import { Redirect } from 'react-router-dom';
 import Progress from "react-progress-2";
+import { ClassicSpinner } from "react-spinners-kit";
 import swal from 'sweetalert';
 import "react-progress-2/main.css";
 import './style.module.scss';
@@ -44,17 +45,22 @@ class login extends Component {
     handleSubmit = event => {
         event.preventDefault();
         Progress.show();
+        this.setState({ loading: true });
         user.login(this.state.username, this.state.password)
             .then(response => response.data)
             .then((data) => {
                 if (data.code === 0) {
-                    localStorage.setItem('token', `Bearer ${data.token}`);
-                    localStorage.setItem('userId', data.userId);
-                    localStorage.setItem('nickName', data.nickName);
-                    this.setState({ loading: false });
-                    this.setState(() => ({
-                        loginAuth: true
-                    }));
+
+                    setTimeout(() => {
+                        localStorage.setItem('token', `Bearer ${data.token}`);
+                        localStorage.setItem('userId', data.userId);
+                        localStorage.setItem('nickName', data.nickName);
+                        this.setState({ loading: false });
+                        this.setState(() => ({
+                            loginAuth: true
+                        }));
+                    }, 5000);
+
 
                 } else {
                     swal("Información!", "Usuario o clave incorrecto!", "info");
@@ -71,10 +77,19 @@ class login extends Component {
 
 
     render() {
+        const { loading } = this.state;
+
         if (this.state.loginAuth) {
             return <Redirect to="./home" />
         }
         return <div className="container">
+            <div className="row loading">
+                <ClassicSpinner
+                    size={100}
+                    color="#268EFC"
+                    loading={loading}
+                />
+            </div>
             <div className="row rowLogin">
                 <div className="col-sm-9 col-md-7 col-lg-5 mx-auto">
                     <div className="card card-signin my-5">

@@ -10,6 +10,7 @@ import PrivateRoute from './helpers/PrivateRoute';
 import './index.scss';
 import * as serviceWorker from './serviceWorker';
 
+
 const routing = (
     <BrowserRouter>
         <Switch>
