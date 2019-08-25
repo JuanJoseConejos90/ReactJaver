@@ -55,6 +55,7 @@ class login extends Component {
                         localStorage.setItem('token', `Bearer ${data.token}`);
                         localStorage.setItem('userId', data.userId);
                         localStorage.setItem('nickName', data.nickName);
+                        localStorage.setItem('group', data.groupId);
                         this.setState({ loading: false });
                         this.setState(() => ({
                             loginAuth: true

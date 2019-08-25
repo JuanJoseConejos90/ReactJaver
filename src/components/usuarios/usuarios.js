@@ -12,6 +12,7 @@ import Modal from 'react-bootstrap/Modal';
 import Moment from 'react-moment';
 import 'moment-timezone';
 import Progress from "react-progress-2";
+import { ClassicSpinner } from "react-spinners-kit";
 import Form from 'react-bootstrap/Form';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
@@ -65,18 +66,18 @@ class usuarios extends Component {
     }
 
 
-    handleChange = (event) => {
+    handleChange = async (event) => {
 
         try {
 
-
-            this.setState({ buscar: event.target.value });
-            var usersFilters = this.state.users;
-            usersFilters = usersFilters.filter((item => {
-                return item.firstName.toLowerCase().search(event.target.value.toLowerCase()) !== -1;
+            let data = event.target.value.toUpperCase();
+            await this.setState({ buscar: data });
+            const { users } = this.state
+            let usersFilters = users.filter((item => {
+                return item.firstName.toUpperCase().indexOf(data) > -1;
             }));
 
-            this.setState({ users: usersFilters });
+            await this.setState({ users: usersFilters });
 
         } catch (error) {
             console.log(error);
@@ -139,7 +140,7 @@ class usuarios extends Component {
 
         try {
 
-           this.getSettings();
+            this.getSettings();
 
         } catch (error) {
             console.log(error);
@@ -147,42 +148,47 @@ class usuarios extends Component {
 
     }
 
-   async getSettings(){
+    async getSettings() {
 
         try {
 
             await this.getColumnsType();
             await this.getUsers();
-    
+
         } catch (error) {
             console.log(error);
         }
     }
 
- getUsers(){
+    getUsers() {
         try {
 
+            Progress.show();
+            this.setState({ loading: true });
             user.getusers()
-            .then(response => response.data)
-            .then((data) => {
-                if (data.code === 0) {
-                      this.setState({ users: data.users });
-                      this.getItemHeader(data.users[0]);
-                      this.getOptionsModal(data.users[0]);
-                      this.getFiltersDb(data.users[0])
-                      this.countFilter();
-                      const { filterSettings } = this.state;
-                      let key =  Object.keys(data.users[0]);
-                      filterSettings[0].property = key[0];
-                      this.setState({ filterSettings });
-                      Progress.hide();
-                }
-            })
-            .catch((err) => {
-                console.log(err);
-            });
+                .then(response => response.data)
+                .then((data) => {
+                    if (data.code === 0) {
+                        setTimeout(() => {
+                            this.setState({ users: data.users });
+                            this.getItemHeader(data.users[0]);
+                            this.getOptionsModal(data.users[0]);
+                            this.getFiltersDb(data.users[0])
+                            this.countFilter();
+                            const { filterSettings } = this.state;
+                            let key = Object.keys(data.users[0]);
+                            filterSettings[0].property = key[0];
+                            this.setState({ filterSettings });
+                            Progress.hide();
+                            this.setState({ loading: false });
+                        }, 5000);
+                    }
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
 
-            
+
         } catch (error) {
             console.log(error);
         }
@@ -527,6 +533,7 @@ class usuarios extends Component {
 
         try {
 
+            event.preventDefault();
             const { filterSettings } = this.state;
             let index = event.target.dataset.index;
             filterSettings[index].value = event.target.value.toUpperCase();
@@ -572,7 +579,6 @@ class usuarios extends Component {
 
         try {
             event.preventDefault();
-            Progress.show();
             user.getusers()
                 .then(response => response.data)
                 .then((data) => {
@@ -581,12 +587,10 @@ class usuarios extends Component {
                         this.getItemHeader(data.users[0]);
                         this.getOptionsModal(data.users[0]);
                         this.countFilter();
-                        Progress.hide();
                     }
                 })
                 .catch((err) => {
                     console.log(err);
-                    Progress.hide();
                 });
 
         } catch (error) {
@@ -691,8 +695,16 @@ class usuarios extends Component {
     }
 
     render() {
+        const { loading } = this.state;
         return (
             <div className="container-fluid" data-panel="containerUsers" id="PanelContainer" key="PanelContainer">
+                 <div className="row loading">
+                    <ClassicSpinner
+                        size={100}
+                        color="#268EFC"
+                        loading={loading}
+                    />
+                </div>
                 <div className="row">
                     <div className="col-12">
                         <Breadcrum inicio={this.state.inicio} modulo={this.state.modulo} componente={this.state.componente} />

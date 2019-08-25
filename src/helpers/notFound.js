@@ -5,7 +5,7 @@ class notFound extends Component {
         return (
             <div className="container">
                 <div className="row mt-10px">
-                    <div class="mx-auto">
+                    <div className="mx-auto">
                         <h1>the page is not found</h1>
                     </div>
                 </div>

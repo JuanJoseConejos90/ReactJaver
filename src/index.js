@@ -6,7 +6,6 @@ import home from './components/home/home';
 import notfound from './helpers/notFound';
 import usuarios from './components/usuarios/usuarios';
 import usuarioInfo from './components/usuarios/usuarioInfo';
-import PrivateRoute from './helpers/PrivateRoute';
 import './index.scss';
 import * as serviceWorker from './serviceWorker';
 

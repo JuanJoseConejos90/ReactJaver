@@ -4,11 +4,13 @@ import Breadcrum from './../ui/Breadcrum';
 import Autocomplete from './../ui/Autocomplete';
 import Progress from "react-progress-2";
 import { userService as user } from './../../services/user.services';
+import { ClassicSpinner } from "react-spinners-kit";
 import config from './../../config';
 import swal from 'sweetalert';
+import $ from 'jquery';
 
-const emailRegex = RegExp('/^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/');
-const passRegex = RegExp('/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/');
+const emailRegex = /\S+@\S+\.\S+/;
+const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/;
 
 class crearUsuario extends Component {
 
@@ -85,16 +87,16 @@ class crearUsuario extends Component {
         try {
 
             user
-              .getCompanys()
-              .then(response => response.data)
-              .then(data => {
-                if (data.code === 0) {
-                  this.suggestionscompanysFilters(data.companys);
-                }
-              })
-              .catch(err => {
-                console.log(err);
-              });
+                .getCompanys()
+                .then(response => response.data)
+                .then(data => {
+                    if (data.code === 0) {
+                        this.suggestionscompanysFilters(data.companys);
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                });
 
         } catch (error) {
             console.log(error)
@@ -340,29 +342,43 @@ class crearUsuario extends Component {
         }
     }
 
+    validateFormData() {
+        return false;
+    };
+
 
     handleSumit = (event) => {
         try {
             event.preventDefault();
-            user.createdUser(this.state.userName, this.state.firstName, this.state.lastName, "INTEL", null, 1,
-            parseInt(this.state.department), 1, parseInt(this.state.location), parseInt(this.state.company), this.state.businessPhone,
-            this.state.homePhone, this.state.mobilePhone, this.state.email, this.state.gender,
-            "JJCS", config.date, "JJCS", config.date, "HH:MM:SS", "HH:MM:SS", this.state.pass, config.state, config.state, config.state, parseInt(this.state.rol),
-            parseInt(this.state.group), config.state)
+            if (this.checkValidForm()) {
+                let userCreated = localStorage.getItem('nickName');
+                this.setState({ loading: true });
+                user.createdUser(this.state.userName, this.state.firstName, this.state.lastName, "INTEL", null, 1,
+                    parseInt(this.state.department), 1, parseInt(this.state.location), parseInt(this.state.company), this.state.businessPhone,
+                    this.state.homePhone, this.state.mobilePhone, this.state.email, this.state.gender,
+                    userCreated, config.date, userCreated, config.date, "HH:MM:SS", "HH:MM:SS", this.state.pass, config.state, config.state, config.state, parseInt(this.state.rol),
+                    parseInt(this.state.group), config.state)
+                    .then(response => response.data)
+                    .then((data) => {
+                        if (data.code === 0) {
 
-            .then(response => response.data)
-            .then((data) => {
-                if (data.code === 0) {
-                    swal("Información!", "Usuario creado de manera correcta!", "success");
-                }else{
-                    swal("Información!", "Error en la creación de usuario!", "error");
-                }
-            })
-            .catch((err) => {
-                console.log(err);
-            });
+                            setTimeout(() => {
+                                swal("Información!", "Usuario creado de manera correcta!", "success");
+                                this.resetForms();
+                                this.setState({ loading: false });
+                            }, 5000);
+                        } else {
+                            swal("Información!", "Error en la creación de usuario!", "error");
+                        }
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                    });
 
-           
+            } else {
+                swal("Información!", "Favor ingrese todos los datos", "error");
+            }
+
         } catch (error) {
             console.log(error);
         }
@@ -412,7 +428,7 @@ class crearUsuario extends Component {
                     break;
             }
 
-            this.setState({ formErrors, [name]: value }, () => console.log(this.state));
+            this.setState({ formErrors, [name]: value });
 
         } catch (error) {
             console.log(error);
@@ -434,10 +450,64 @@ class crearUsuario extends Component {
 
     }
 
+    checkValidForm() {
+        return this.state.username !== "" &&
+            this.state.firstName !== "" &&
+            this.state.lastName !== "" &&
+            this.state.email !== "" &&
+            this.state.homePhone !== "" &&
+            this.state.mobilePhone !== "" &&
+            this.state.pass !== "" &&
+            this.state.company !== "" &&
+            this.state.location !== "" &&
+            this.state.rol !== "" &&
+            this.state.department !== "" &&
+            this.state.group !== ""
+    }
+
+    resetForms() {
+        try {
+
+            this.setState({
+                username: '',
+                firstName: '',
+                lastName: '',
+                email: '',
+                homePhone: '',
+                mobilePhone: '',
+                pass: '',
+                company: '',
+                location: '',
+                rol: '',
+                department: '',
+                group: '',
+            });
+
+
+            $(':input', '#formData')
+                .not(':button, :submit, :reset, :hidden')
+                .val('')
+                .prop('checked', false)
+                .prop('selected', false);
+
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
     render() {
         const { formErrors } = this.state;
+        const { loading } = this.state;
         return (
             <div className="container-fluid" data-panel="containerCreatedUsers">
+                <div className="row loading">
+                    <ClassicSpinner
+                        size={100}
+                        color="#268EFC"
+                        loading={loading}
+                    />
+                </div>
                 <div className="row">
                     <div className="col-12">
                         <Breadcrum inicio={this.state.inicio} modulo={this.state.modulo} componente={this.state.componente} />
@@ -457,7 +527,7 @@ class crearUsuario extends Component {
                             <div className="card-body">
                                 <div className="row">
                                     <div className="container">
-                                        <form onSubmit={this.handleSumit}>
+                                        <form onSubmit={this.handleSumit} id="formData">
 
                                             <div className="row">
 

@@ -9,7 +9,6 @@ import companias from './../companias/companias';
 import grupos from './../grupos/grupos';
 import localidades from './../localidades/localidades';
 import departamentos from './../departamentos/departamentos';
-import PrivateRoute from './../../helpers/PrivateRoute';
 import Dropdown from 'react-bootstrap/Dropdown';
 import './style.module.scss';
 
