@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { BrowserRouter as Router, Link, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Link, Route,Redirect } from 'react-router-dom';
 import usuarios from './../usuarios/usuarios';
 import usuarioInfo from './../usuarios/usuarioInfo';
 import crearUsuario from './../usuarios/crearUsuario';
@@ -22,11 +22,13 @@ class home extends Component {
             classActive: true,
             subHome: true,
             submenuUsuario: true,
+            config: false,
             nickName: localStorage.getItem('nickName')
         };
 
         this.handleChange = this.handleChange.bind(this);
         this.logout = this.logout.bind(this);
+        this.getInfoUser = this.getInfoUser.bind(this);
 
     }
 
@@ -63,11 +65,32 @@ class home extends Component {
 
 
     logout = (event) => {
-        localStorage.clear();
-        window.location.href = '/';
+
+        try {
+
+            event.preventDefault();
+            localStorage.clear();
+            window.location.href = '/';
+
+        } catch (error) {
+            console.log(error);
+        }
+
+    }
+
+    getInfoUser = (event) => {
+        try {
+            event.preventDefault();
+            this.setState({ config: true });
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     render() {
+        if (this.state.config) {
+            return <Redirect to="./usuarioInfo" />
+        }
         return (<Router>
             <header>
                 <div className="row navBarsection">
@@ -82,9 +105,9 @@ class home extends Component {
                             <Dropdown.Menu>
                                 <Dropdown.Item href="#/action-1">Detalle</Dropdown.Item>
                                 <Dropdown.Divider />
-                                <Dropdown.Item href="#"><i className="fa fa-user"></i><span className="toolMenu">Mi cuenta</span></Dropdown.Item>
-                                <Dropdown.Item href="#"><i className="fa fa-cog"></i><span className="toolMenu">Configuración</span></Dropdown.Item>
-                                <Dropdown.Item href="#"><i className="fa fa-cog"></i><span className="toolMenu">Cambiar Clave</span></Dropdown.Item>
+                                <Dropdown.Item href="#" onClick={this.getInfoUser}><i className="fa fa-user"></i><span className="toolMenu">Mi cuenta</span></Dropdown.Item>
+                                <Dropdown.Item href="#" onClick={this.getInfoUser}><i className="fa fa-cog"></i><span className="toolMenu">Configuración</span></Dropdown.Item>
+                                <Dropdown.Item href="#" onClick={this.getInfoUser}><i className="fa fa-cog"></i><span className="toolMenu">Cambiar Clave</span></Dropdown.Item>
                                 <Dropdown.Item href="#" onClick={this.logout}><i className="fa fa-sign-out-alt"></i><span className="toolMenu">Salir</span></Dropdown.Item>
                             </Dropdown.Menu>
                         </Dropdown>

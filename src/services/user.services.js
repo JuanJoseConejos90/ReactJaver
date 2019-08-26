@@ -4,7 +4,7 @@ export const userService = {
     login, getUser, getgroups, getrols, getusers, getInfotbUsers,
     getQueryRolFilter, getQueryUserFilter, getFilterbyDataType,
     getCompanys, getLocations, getDepartments, getGroups, createdUser, updatedUser, getUserbyRols,
-    getUserbyGroup, createdUserbyRol, createdUserbyGroup, deleteUserbyRol, deleteUserbyGroup
+    getUserbyGroup, createdUserbyRol, createdUserbyGroup, deleteUserbyRol, deleteUserbyGroup, getJobs
 };
 
 async function getInfotbUsers() {
@@ -104,10 +104,10 @@ async function getCompanys() {
 }
 
 async function getLocations() {
-    const url = 'api/locations/getAllLocations';
+    const url = '/api/locations/getAllLocations'
     let axiosConfig = {
         headers: {
-            'Content-Type': 'application/json;charset=UTF-8',
+            'Content-TypAccess-Control-Allow-Headers': 'X-Requested-With, Content-Type, Accept',
             'Access-Control-Allow-Origin': '*'
         }
     };
@@ -138,7 +138,7 @@ async function getGroups() {
 
 async function createdUser(nickName, fistName, lastName, title, photo, manager, departmentId, costCenter, location,
     company, businessPhone, homephone, mobilePhone, email, gender, createdBy, created, updateBy,
-    updated, timeFormat, timeZone, passWord, vip, state, lockedOut, role, groupId, sessionId) {
+    updated, timeFormat, timeZone, passWord, vip, state, lockedOut, role, groupId, sessionId, job) {
 
     const url = '/api/users/createUser';
     let axiosConfig = {
@@ -149,13 +149,13 @@ async function createdUser(nickName, fistName, lastName, title, photo, manager, 
         }
     };
 
-    const data = { fistName: fistName, lastName: lastName, title: title, photo: photo, manager: manager, departmentId: departmentId, costCenter: costCenter, location: location, company: company, businessPhone: businessPhone, homephone: homephone, mobilePhone: mobilePhone, email: email, gender: gender, createdBy: createdBy, created: created, updateBy: updateBy, updated: updated, timeFormat: timeFormat, timeZone: timeZone, passwordUser: passWord, vip: vip, state: state, lockedOut: lockedOut, role: role, groupId: groupId, sessionId: sessionId, nickName: nickName };
+    const data = { fistName: fistName, lastName: lastName, title: title, photo: photo, manager: manager, departmentId: departmentId, costCenter: costCenter, locationId: location, companyId: company, businessPhone: businessPhone, homephone: homephone, mobilePhone: mobilePhone, email: email, gender: gender, createdBy: createdBy, created: created, updateBy: updateBy, updated: updated, timeFormat: timeFormat, timeZone: timeZone, passwordUser: passWord, vip: vip, state: state, lockedOut: lockedOut, rolId: role, groupId: groupId, sessionId: sessionId, nickName: nickName, job: job };
     return await axios.post(url, data, axiosConfig);
 }
 
 async function updatedUser(userId, nickName, fistName, lastName, title, photo, manager, departmentId, costCenter, location,
     company, businessPhone, homephone, mobilePhone, email, gender, createdBy, created, updateBy,
-    updated, timeFormat, timeZone, passWord, vip, state, lockedOut, role, groupId, sessionId) {
+    updated, timeFormat, timeZone, passWord, vip, state, lockedOut, role, groupId, sessionId, job) {
 
     const url = '/api/users/updateUser';
     let axiosConfig = {
@@ -166,16 +166,7 @@ async function updatedUser(userId, nickName, fistName, lastName, title, photo, m
         }
     };
 
-    const data = {
-        userId: userId, fistName: fistName, lastName: lastName, title: title,
-        photo: photo, manager: manager, departmentId: departmentId,
-        costCenter: costCenter, location: location, company: company,
-        businessPhone: businessPhone, homephone: homephone, mobilePhone: mobilePhone,
-        email: email, gender: gender, createdBy: createdBy, created: created,
-        updateBy: updateBy, updated: updated, timeFormat: timeFormat, timeZone: timeZone,
-        passwordUser: passWord, vip: vip, state: state, lockedOut: lockedOut, role: role,
-        groupId: groupId, sessionId: sessionId, nickName: nickName
-    };
+    const data = { userId: userId, fistName: fistName, lastName: lastName, title: title, photo: photo, manager: manager, departmentId: departmentId, costCenter: costCenter, locationId: location, companyId: company, businessPhone: businessPhone, homephone: homephone, mobilePhone: mobilePhone, email: email, gender: gender, createdBy: createdBy, created: created, updateBy: updateBy, updated: updated, timeFormat: timeFormat, timeZone: timeZone, passwordUser: passWord, vip: vip, state: state, lockedOut: lockedOut, rolId: role, groupId: groupId, sessionId: sessionId, nickName: nickName, job: job };
     return await axios.put(url, data, axiosConfig);
 }
 
@@ -229,6 +220,17 @@ async function deleteUserbyGroup(userId) {
     const url = `/api/Utils/deleteUserbyGroup/${userId}`;
     let axiosConfig = { headers: { 'Content-Type': 'application/json;charset=UTF-8', 'Access-Control-Allow-Origin': '*' } };
     return await axios.delete(url, axiosConfig);
+}
+
+async function getJobs() {
+    const url = '/api/Utils/getAllJobs';
+    let axiosConfig = {
+        headers: {
+            'Content-Type': 'application/json;charset=UTF-8',
+            'Access-Control-Allow-Origin': '*'
+        }
+    };
+    return await axios.get(url, axiosConfig);
 }
 
 

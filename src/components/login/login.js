@@ -64,11 +64,13 @@ class login extends Component {
 
 
                 } else {
+                    this.setState({ loading: false });
                     swal("Información!", "Usuario o clave incorrecto!", "info");
                 }
             })
             .catch((err) => {
                 Progress.hide();
+                this.setState({ loading: false });
                 swal("Información!", "El usuario o la clave no son correctos!", "info");
             });
 

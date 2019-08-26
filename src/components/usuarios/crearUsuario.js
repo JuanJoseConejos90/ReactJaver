@@ -32,21 +32,31 @@ class crearUsuario extends Component {
             rol: '',
             department: '',
             group: '',
+            job: '',
             suggestionscompanys: [],
             suggestionslocations: [],
             suggestionsrols: [],
             suggestionsdepartments: [],
             suggestionsgroups: [],
+            suggestionsJobs: [],
             placeholderCompanys: 'Compañias',
             placeholderLocations: 'Locaciones',
             placeholderRols: 'Roles',
             placeholderDepartment: 'Departamento',
             placeholderGroup: 'Grupo',
+            placeholderJob: 'Puesto',
+            idCompanys: 'idCompany',
+            idLocations: 'idLocation',
+            idRols: 'idRol',
+            idDepartment: 'idDepartment',
+            idGroup: 'idGroup',
+            idJob: 'idjob',
             typeCompany: 'company',
             typeLocation: 'location',
             typeRol: 'rol',
             typeDepartment: 'department',
             typeGroup: 'group',
+            typeJob: 'job',
             alert: false,
             loading: false,
             msg: '',
@@ -77,6 +87,7 @@ class crearUsuario extends Component {
             this.getAllRols();
             this.getAllDepartments();
             this.getAllGroup();
+            this.getAllJobs();
 
         } catch (error) {
             console.log(error);
@@ -295,6 +306,50 @@ class crearUsuario extends Component {
         }
     }
 
+    suggestionsJobsFilters(data) {
+
+        try {
+
+            if (data.length > 0) {
+                let array = [];
+                data.map((job, index) => {
+                    var jobSimple = {
+                        Id: job.jobId,
+                        Name: job.description
+                    }
+                    array.push(jobSimple);
+                    return null;
+                });
+
+                this.setState({ suggestionsJobs: array });
+
+            }
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    getAllJobs() {
+        try {
+
+            user
+                .getJobs()
+                .then(response => response.data)
+                .then(data => {
+                    if (data.code === 0) {
+                        this.suggestionsJobsFilters(data.jobs);
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                });
+
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     getCompany = (company) => {
 
         try {
@@ -342,10 +397,20 @@ class crearUsuario extends Component {
         }
     }
 
+    getJob = (job) => {
+
+        try {
+
+            this.setState({ job: job })
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
     validateFormData() {
         return false;
     };
-
 
     handleSumit = (event) => {
         try {
@@ -357,7 +422,7 @@ class crearUsuario extends Component {
                     parseInt(this.state.department), 1, parseInt(this.state.location), parseInt(this.state.company), this.state.businessPhone,
                     this.state.homePhone, this.state.mobilePhone, this.state.email, this.state.gender,
                     userCreated, config.date, userCreated, config.date, "HH:MM:SS", "HH:MM:SS", this.state.pass, config.state, config.state, config.state, parseInt(this.state.rol),
-                    parseInt(this.state.group), config.state)
+                    parseInt(this.state.group), config.state, parseInt(this.state.job))
                     .then(response => response.data)
                     .then((data) => {
                         if (data.code === 0) {
@@ -365,13 +430,16 @@ class crearUsuario extends Component {
                             setTimeout(() => {
                                 swal("Información!", "Usuario creado de manera correcta!", "success");
                                 this.resetForms();
+                                this.clearSuggestions();
                                 this.setState({ loading: false });
                             }, 5000);
                         } else {
                             swal("Información!", "Error en la creación de usuario!", "error");
+                            this.setState({ loading: false });
                         }
                     })
                     .catch((err) => {
+                        this.setState({ loading: false });
                         console.log(err);
                     });
 
@@ -380,6 +448,7 @@ class crearUsuario extends Component {
             }
 
         } catch (error) {
+            this.setState({ loading: false });
             console.log(error);
         }
 
@@ -490,6 +559,20 @@ class crearUsuario extends Component {
                 .prop('checked', false)
                 .prop('selected', false);
 
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    clearSuggestions() {
+        try {
+
+            $('#idCompany').val('');
+            $('#idLocation').val('');
+            $('#idRol').val('');
+            $('#idDepartment').val('');
+            $('#idGroup').val('');
+            $('#idjob').val('');
 
         } catch (error) {
             console.log(error);
@@ -530,7 +613,6 @@ class crearUsuario extends Component {
                                         <form onSubmit={this.handleSumit} id="formData">
 
                                             <div className="row">
-
                                                 <div className="col-4">
                                                     <div className="form-group row">
                                                         <label htmlFor="userName" className="col-4 col-form-label">UserName:</label>
@@ -573,7 +655,6 @@ class crearUsuario extends Component {
                                             </div>
 
                                             <div className="row">
-
                                                 <div className="col-4">
                                                     <div className="form-group row">
                                                         <label htmlFor="mobilePhone" className="col-4 col-form-label">Teléfono:</label>
@@ -587,7 +668,6 @@ class crearUsuario extends Component {
                                                         </div>
                                                     </div>
                                                 </div>
-
                                                 <div className="col-4">
                                                     <div className="form-group row">
                                                         <label htmlFor="businessPhone" className="col-4 col-form-label">Teléfono:</label>
@@ -621,7 +701,7 @@ class crearUsuario extends Component {
                                                     <div className="form-group row">
                                                         <label htmlFor="businessPhone" className="col-4 col-form-label">Compañia:</label>
                                                         <div className="col-8">
-                                                            <Autocomplete suggestions={this.state.suggestionscompanys} getCompany={this.getCompany} type={this.state.typeCompany} placeholder={this.state.placeholderCompanys} />
+                                                            <Autocomplete suggestions={this.state.suggestionscompanys} getCompany={this.getCompany} type={this.state.typeCompany} placeholder={this.state.placeholderCompanys} idComponent={this.state.idCompanys} />
                                                         </div>
                                                     </div>
                                                 </div>
@@ -629,7 +709,7 @@ class crearUsuario extends Component {
                                                     <div className="form-group row">
                                                         <label htmlFor="businessPhone" className="col-4 col-form-label">Locación:</label>
                                                         <div className="col-8">
-                                                            <Autocomplete suggestions={this.state.suggestionslocations} getLocation={this.getLocation} type={this.state.typeLocation} placeholder={this.state.placeholderLocations} />
+                                                            <Autocomplete suggestions={this.state.suggestionslocations} getLocation={this.getLocation} type={this.state.typeLocation} placeholder={this.state.placeholderLocations} idComponent={this.state.idLocations} />
                                                         </div>
                                                     </div>
                                                 </div>
@@ -637,7 +717,7 @@ class crearUsuario extends Component {
                                                     <div className="form-group row">
                                                         <label htmlFor="businessPhone" className="col-4 col-form-label">Roles:</label>
                                                         <div className="col-8">
-                                                            <Autocomplete suggestions={this.state.suggestionsrols} getRol={this.getRol} type={this.state.typeRol} placeholder={this.state.placeholderRols} />
+                                                            <Autocomplete suggestions={this.state.suggestionsrols} getRol={this.getRol} type={this.state.typeRol} placeholder={this.state.placeholderRols} idComponent={this.state.idRols} />
                                                         </div>
                                                     </div>
                                                 </div>
@@ -648,7 +728,7 @@ class crearUsuario extends Component {
                                                     <div className="form-group row">
                                                         <label htmlFor="businessPhone" className="col-4 col-form-label">Department:</label>
                                                         <div className="col-8">
-                                                            <Autocomplete suggestions={this.state.suggestionsdepartments} getDepartment={this.getDepartment} type={this.state.typeDepartment} placeholder={this.state.placeholderDepartment} />
+                                                            <Autocomplete suggestions={this.state.suggestionsdepartments} getDepartment={this.getDepartment} type={this.state.typeDepartment} placeholder={this.state.placeholderDepartment} idComponent={this.state.idDepartment} />
                                                         </div>
                                                     </div>
                                                 </div>
@@ -656,7 +736,7 @@ class crearUsuario extends Component {
                                                     <div className="form-group row">
                                                         <label htmlFor="businessPhone" className="col-4 col-form-label">Grupo:</label>
                                                         <div className="col-8">
-                                                            <Autocomplete suggestions={this.state.suggestionsgroups} getGroup={this.getGroup} type={this.state.typeGroup} placeholder={this.state.placeholderGroup} />
+                                                            <Autocomplete suggestions={this.state.suggestionsgroups} getGroup={this.getGroup} type={this.state.typeGroup} placeholder={this.state.placeholderGroup} idComponent={this.state.idGroup} />
                                                         </div>
                                                     </div>
                                                 </div>
@@ -665,6 +745,7 @@ class crearUsuario extends Component {
                                                         <label htmlFor="genero" className="col-4 col-form-label">Genero:</label>
                                                         <div className="col-8">
                                                             <select className="form-control" id="genero" onChange={this.handleChangeSelectgender}>
+                                                                <option value="" selected>Seleccione</option>
                                                                 <option value="M">Maculino</option>
                                                                 <option value="F">Femenino</option>
                                                             </select>
@@ -674,6 +755,14 @@ class crearUsuario extends Component {
                                             </div>
 
                                             <div className="row">
+                                                <div className="col-4">
+                                                    <div className="form-group row">
+                                                        <label htmlFor="businessPhone" className="col-4 col-form-label">Puesto:</label>
+                                                        <div className="col-8">
+                                                            <Autocomplete suggestions={this.state.suggestionsJobs} getJob={this.getJob} type={this.state.typeJob} placeholder={this.state.placeholderJob} idComponent={this.state.idJob} />
+                                                        </div>
+                                                    </div>
+                                                </div>
                                                 <div className="col-4">
                                                     <div className="form-group row">
                                                         <label htmlFor="email" className="col-4 col-form-label">Email:</label>

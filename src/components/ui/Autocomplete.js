@@ -13,8 +13,8 @@ class Autocomplete extends Component {
     constructor(props) {
         super(props);
 
-        const { userInput } = props; 
-        
+        const { userInput } = props;
+
         this.state = {
             activeSuggestion: 0,
             filteredSuggestions: [],
@@ -65,6 +65,9 @@ class Autocomplete extends Component {
             case "group":
                 this.props.getGroup(e.currentTarget.id);
                 break;
+            case "job":
+                this.props.getJob(e.currentTarget.id);
+                break;
             default:
                 break;
         }
@@ -97,11 +100,11 @@ class Autocomplete extends Component {
     };
 
 
-    setInput(){
-        this.setState({userInput: this.props.userInput});
+    setInput() {
+        this.setState({ userInput: this.props.userInput });
     }
 
-    
+
 
     render() {
         const {
@@ -118,7 +121,7 @@ class Autocomplete extends Component {
 
         let suggestionsListComponent;
 
-    
+
 
         if (showSuggestions && userInput) {
             if (filteredSuggestions.length) {
@@ -156,6 +159,7 @@ class Autocomplete extends Component {
                     </div>
                     <input
                         type="text"
+                        id={this.props.idComponent}
                         className="form-control"
                         placeholder={this.props.placeholder}
                         onChange={onChange}

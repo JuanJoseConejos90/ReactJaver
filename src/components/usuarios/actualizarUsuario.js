@@ -5,6 +5,7 @@ import Breadcrum from './../ui/Breadcrum';
 import Autocomplete from './../ui/Autocomplete';
 import Progress from "react-progress-2";
 import { userService as user } from './../../services/user.services';
+import { ClassicSpinner } from "react-spinners-kit";
 import swal from 'sweetalert';
 import Moment from 'react-moment';
 import Tabs from 'react-bootstrap/Tabs'
@@ -505,23 +506,33 @@ class actualizarUsuario extends Component {
     handleSumit = (event) => {
 
         try {
-            user.updatedUser(this.state.userId, this.state.userName, this.state.firstName, this.state.lastName, "INTEL", null, 1,
-                parseInt(this.state.department), 1, parseInt(this.state.locationId), parseInt(this.state.companyId), this.state.businessPhone,
-                this.state.homePhone, this.state.mobilePhone, this.state.email, this.state.gender,
+                event.preventDefault();
+                this.setState({ loading: true });
+                user.updatedUser(this.state.userId, this.state.userName, this.state.firstName, this.state.lastName, "INTEL", null, 1,
+                parseInt(this.state.departmentId), 1, parseInt(this.state.locationId), parseInt(this.state.companyId), this.state.businessPhone,
+                this.state.homePhone, this.state.mobilePhone, this.state.email, "M",
                 "JJCS", config.date, "JJCS", config.date, "HH:MM:SS", "HH:MM:SS", this.state.pass, config.state, config.state, config.state, parseInt(this.state.rolId),
                 parseInt(this.state.groupId), config.state)
                 .then(response => response.data)
                 .then((data) => {
                     if (data.code === 0) {
-                        swal("Información!", "Usuario actualizado de manera correcta!", "success");
+
+                        setTimeout(() => {
+                            swal("Información!", "Usuario actualizado de manera correcta!", "success");
+                            this.setState({ loading: false });
+                        }, 5000);
+                        
                     } else {
                         swal("Información!", "Error en la actualización de usuario!", "error");
+                        this.setState({ loading: false });
                     }
                 })
                 .catch((err) => {
+                    this.setState({ loading: false });
                     console.log(err);
                 });
         } catch (error) {
+            this.setState({ loading: false });
             console.log(error)
         }
     }
@@ -785,12 +796,20 @@ class actualizarUsuario extends Component {
     }
 
     render() {
+        const { loading } = this.state;
         if (this.state.redirectUsuarios) {
 
              return <Redirect from="/actualizarUsuario/:userId" to="/usuarios" exact /> 
         }
         return (
             <div className="container-fluid" data-panel="containerUpdateUser">
+                 <div className="row loading">
+                    <ClassicSpinner
+                        size={100}
+                        color="#268EFC"
+                        loading={loading}
+                    />
+                </div>
                 <div className="row">
                     <div className="col-12">
                         <Breadcrum inicio={this.state.inicio} modulo={this.state.modulo} componente={this.state.componente} />
@@ -805,7 +824,7 @@ class actualizarUsuario extends Component {
                                         </div>
                                         <div className="col-2 pull-right">
                                             <ButtonToolbar>
-                                                <Button variant="primary" size="sm">Guardar</Button>
+                                                <Button type= "submit" variant="primary" size="sm">Guardar</Button>
                                                 <Button variant="light" size="sm" onClick={this.redirect}>Cancelar</Button>
                                             </ButtonToolbar>
                                         </div>

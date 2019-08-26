@@ -2,13 +2,8 @@ import React, { Component } from 'react';
 import { userService as user } from './../../services/user.services';
 import Modal from 'react-bootstrap/Modal';
 import Breadcrum from './../ui/Breadcrum';
-import Progress from "react-progress-2";
-import swal from 'sweetalert';
 import Tabs from 'react-bootstrap/Tabs'
 import Tab from 'react-bootstrap/Tab';
-import Figure from 'react-bootstrap/Figure';
-import Button from 'react-bootstrap/Button';
-import ButtonToolbar from 'react-bootstrap/ButtonToolbar';
 
 class usuarioInfo extends Component {
 
@@ -17,8 +12,8 @@ class usuarioInfo extends Component {
 
         this.state = {
             userName: '',
-            job: 'Soporte Tecnico',
-            location: 'Sabana, San Jose CR',
+            job: '',
+            location: '',
             businessPhone: "",
             homePhone: "",
             mobilePhone: "",
@@ -43,12 +38,14 @@ class usuarioInfo extends Component {
 
     componentDidMount() {
 
-        user.getUser("1")
+        let id =localStorage.getItem('userId');
+        user.getUser(id)
             .then(response => response.data)
             .then((data) => {
                 if (data.code === 0) {
                     this.setState({
                         userName: data.user[0].firstName + " " + data.user[0].lastName,
+                        location: data.user[0].locationName
                     });
                 }
             })
@@ -148,7 +145,7 @@ class usuarioInfo extends Component {
                                     <div className="col-4">
                                         <div className="row">
                                             <li className="fa fa-map-marker-alt"></li>
-                                            <p className="rowDataTitle">Ubicacion:</p>
+                                            <p className="rowDataTitle">Ubicación:</p>
                                         </div>
                                         <div className="row marginRowData">
                                             <p className="rowData">Sabana, San Jose</p>
@@ -157,7 +154,7 @@ class usuarioInfo extends Component {
                                     <div className="col-4">
                                         <div className="row">
                                             <i className="fa fa-phone"></i>
-                                            <p className="rowDataTitle">Telefono Oficina:</p>
+                                            <p className="rowDataTitle">Teléfono Oficina:</p>
                                         </div>
                                         <div className="row marginRowData">
                                             <p className="rowData">(506)85992886</p>
@@ -166,7 +163,7 @@ class usuarioInfo extends Component {
                                     <div className="col-4">
                                         <div className="row">
                                             <i className="fa fa-mobile"></i>
-                                            <p className="rowDataTitle">Telefono Celular:</p>
+                                            <p className="rowDataTitle">Teléfono Celular:</p>
                                         </div>
                                         <div className="row marginRowData">
                                             <p className="rowData">(506)85992886</p>
@@ -211,7 +208,7 @@ class usuarioInfo extends Component {
                                         <div className="row">
                                             <div className="col-8">
                                                 <div className="form-group row">
-                                                    <label htmlFor="pass" className="col-3 col-form-label">Telefono Oficina:</label>
+                                                    <label htmlFor="pass" className="col-3 col-form-label">Teléfono Oficina:</label>
                                                     <div className="col-4">
                                                         <input type="text"
                                                             id="ubicacion"
@@ -226,7 +223,7 @@ class usuarioInfo extends Component {
                                         <div className="row">
                                             <div className="col-8">
                                                 <div className="form-group row">
-                                                    <label htmlFor="pass" className="col-3 col-form-label">Telefono Celular:</label>
+                                                    <label htmlFor="pass" className="col-3 col-form-label">Teléfono Celular:</label>
                                                     <div className="col-4">
                                                         <input type="text"
                                                             id="ubicacion"
@@ -320,7 +317,6 @@ class usuarioInfo extends Component {
                                         
                                     </Tab>
                                 </Tabs>
-
                             </div>
                         </div>
                     </div>
@@ -332,9 +328,9 @@ class usuarioInfo extends Component {
                     onHide={smClose}
                     aria-labelledby="example-modal-sizes-title-sm">
                     <Modal.Header closeButton>
-                        <Modal.Title id="example-modal-sizes-title-sm">Small Modal</Modal.Title>
+                        <Modal.Title id="example-modal-sizes-title-sm">Configuración</Modal.Title>
                     </Modal.Header>
-                    <Modal.Body>Body</Modal.Body>
+                    <Modal.Body></Modal.Body>
                 </Modal>
             </div>
         );
