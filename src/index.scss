@@ -564,8 +564,6 @@ a.article:hover {
 
 }
 
-
-
 [data-panel='containerUpdateUser'] {
 
     .card,
@@ -697,6 +695,326 @@ a.article:hover {
 
 [data-type='searchFilters'] {
     cursor: pointer !important;
+}
+
+[data-panel='containerCompanys'] {
+
+    .card,
+    .card-header,
+    .card-body,
+    .card-footer {
+        text-align: center;
+        background-color: white;
+
+    }
+
+    .card-header {
+        text-align: left;
+
+        h2 {
+            padding-left: 30px;
+            font-weight: bold;
+        }
+    }
+
+    .toolBarBtns {
+        text-align: left !important;
+        padding-right: 5px;
+    }
+
+    .btncog,
+    .btnfilter {
+        color: $Color-blue !important;
+        cursor: pointer !important;
+        font-size: 1em;
+    }
+
+    .btnTodos {
+        color: black;
+        font-size: 1em;
+
+    }
+
+    .textTitleFilter {
+        font-family: Arial, Helvetica, sans-serif;
+        margin-right: 5px;
+        font-weight: bold;
+    }
+
+    .FilterCreated {
+        margin-top: 5px;
+    }
+
+    .tittleContent {
+        position: relative;
+        transform: translateY(20%);
+    }
+
+    .DropdownButtonActions {
+        text-align: left !important;
+    }
+
+    .operador{
+        font-size: 12px !important;
+        font-weight: bold;
+        height: 38px;
+    }
+}
+
+[data-panel='containerDepartments'] {
+
+    .card,
+    .card-header,
+    .card-body,
+    .card-footer {
+        text-align: center;
+        background-color: white;
+
+    }
+
+    .card-header {
+        text-align: left;
+
+        h2 {
+            padding-left: 30px;
+            font-weight: bold;
+        }
+    }
+
+    .toolBarBtns {
+        text-align: left !important;
+        padding-right: 5px;
+    }
+
+    .btncog,
+    .btnfilter {
+        color: $Color-blue !important;
+        cursor: pointer !important;
+        font-size: 1em;
+    }
+
+    .btnTodos {
+        color: black;
+        font-size: 1em;
+
+    }
+
+    .textTitleFilter {
+        font-family: Arial, Helvetica, sans-serif;
+        margin-right: 5px;
+        font-weight: bold;
+    }
+
+    .FilterCreated {
+        margin-top: 5px;
+    }
+
+    .tittleContent {
+        position: relative;
+        transform: translateY(20%);
+    }
+
+    .DropdownButtonActions {
+        text-align: left !important;
+    }
+
+    .operador{
+        font-size: 12px !important;
+        font-weight: bold;
+        height: 38px;
+    }
+}
+
+[data-panel='containerGroups'] {
+
+    .card,
+    .card-header,
+    .card-body,
+    .card-footer {
+        text-align: center;
+        background-color: white;
+
+    }
+
+    .card-header {
+        text-align: left;
+
+        h2 {
+            padding-left: 30px;
+            font-weight: bold;
+        }
+    }
+
+    .toolBarBtns {
+        text-align: left !important;
+        padding-right: 5px;
+    }
+
+    .btncog,
+    .btnfilter {
+        color: $Color-blue !important;
+        cursor: pointer !important;
+        font-size: 1em;
+    }
+
+    .btnTodos {
+        color: black;
+        font-size: 1em;
+
+    }
+
+    .textTitleFilter {
+        font-family: Arial, Helvetica, sans-serif;
+        margin-right: 5px;
+        font-weight: bold;
+    }
+
+    .FilterCreated {
+        margin-top: 5px;
+    }
+
+    .tittleContent {
+        position: relative;
+        transform: translateY(20%);
+    }
+
+    .DropdownButtonActions {
+        text-align: left !important;
+    }
+
+    .operador{
+        font-size: 12px !important;
+        font-weight: bold;
+        height: 38px;
+    }
+}
+
+[data-panel='containerRoles'] {
+
+    .card,
+    .card-header,
+    .card-body,
+    .card-footer {
+        text-align: center;
+        background-color: white;
+
+    }
+
+    .card-header {
+        text-align: left;
+
+        h2 {
+            padding-left: 30px;
+            font-weight: bold;
+        }
+    }
+
+    .toolBarBtns {
+        text-align: left !important;
+        padding-right: 5px;
+    }
+
+    .btncog,
+    .btnfilter {
+        color: $Color-blue !important;
+        cursor: pointer !important;
+        font-size: 1em;
+    }
+
+    .btnTodos {
+        color: black;
+        font-size: 1em;
+
+    }
+
+    .textTitleFilter {
+        font-family: Arial, Helvetica, sans-serif;
+        margin-right: 5px;
+        font-weight: bold;
+    }
+
+    .FilterCreated {
+        margin-top: 5px;
+    }
+
+    .tittleContent {
+        position: relative;
+        transform: translateY(20%);
+    }
+
+    .DropdownButtonActions {
+        text-align: left !important;
+    }
+
+    .operador{
+        font-size: 12px !important;
+        font-weight: bold;
+        height: 38px;
+    }
+}
+
+[data-panel='containerLocalidades'] {
+
+    .card,
+    .card-header,
+    .card-body,
+    .card-footer {
+        text-align: center;
+        background-color: white;
+
+    }
+
+    .card-header {
+        text-align: left;
+
+        h2 {
+            padding-left: 30px;
+            font-weight: bold;
+        }
+    }
+
+    .toolBarBtns {
+        text-align: left !important;
+        padding-right: 5px;
+    }
+
+    .btncog,
+    .btnfilter {
+        color: $Color-blue !important;
+        cursor: pointer !important;
+        font-size: 1em;
+    }
+
+    .btnTodos {
+        color: black;
+        font-size: 1em;
+
+    }
+
+    .textTitleFilter {
+        font-family: Arial, Helvetica, sans-serif;
+        margin-right: 5px;
+        font-weight: bold;
+    }
+
+    .FilterCreated {
+        margin-top: 5px;
+    }
+
+    .tittleContent {
+        position: relative;
+        transform: translateY(20%);
+    }
+
+    .DropdownButtonActions {
+        text-align: left !important;
+    }
+
+    .operador{
+        font-size: 12px !important;
+        font-weight: bold;
+        height: 38px;
+    }
 }
 
 

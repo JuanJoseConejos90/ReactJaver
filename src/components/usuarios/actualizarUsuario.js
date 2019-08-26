@@ -33,6 +33,7 @@ class actualizarUsuario extends Component {
             mobilePhone: '',
             gender: '',
             pass: '',
+            jobId: '',
             companyId: '',
             departmentId: '',
             rolId: '',
@@ -40,6 +41,7 @@ class actualizarUsuario extends Component {
             locationId: '',
             companyName: '',
             departmentName: '',
+            jobName: '',
             rolName: '',
             groupName: '',
             locationName: '',
@@ -48,6 +50,7 @@ class actualizarUsuario extends Component {
             typeRol: 'rol',
             typeGroup: 'group',
             typeDepartment: 'department',
+            typeJob: 'job',
             state: '',
             checkboxState: true,
             checkboxVIP: false,
@@ -60,6 +63,7 @@ class actualizarUsuario extends Component {
             suggestionsrols: [],
             suggestionsdepartments: [],
             suggestionsgroups: [],
+            suggestionsJobs: [],
             rols: [],
             groups: [],
             userByRol: [],
@@ -69,6 +73,11 @@ class actualizarUsuario extends Component {
             placeholderRols: 'Roles',
             placeholderDepartment: 'Departamento',
             placeholderGroup: 'Grupo',
+            placeholderJob: 'Puesto',
+            idCompanys: 'idCompany',
+            idLocations: 'idLocation',
+            idDepartment: 'idDepartment',
+            idJob: 'idjob',
             showModalRol: false,
             showModalGroup: false,
             alert: false,
@@ -107,6 +116,7 @@ class actualizarUsuario extends Component {
         this.GroupSeleted = this.GroupSeleted.bind(this);
         this.removeGroupSeleted = this.removeGroupSeleted.bind(this);
         this.redirect = this.redirect.bind(this);
+        this.handleChangeSelectgender = this.handleChangeSelectgender.bind(this);
 
     }
 
@@ -114,18 +124,30 @@ class actualizarUsuario extends Component {
 
 
         try {
+            this.settings();
+
+        } catch (error) {
+            console.log(error);
+        }
+
+    }
+
+    async settings() {
+        try {
+
             const { match: { params } } = this.props;
 
             if (params.userId) {
 
-                this.getUser(params.userId);
-                this.getAllCompanys();
-                this.getAllLocations();
-                this.getAllRols();
-                this.getAllDepartments();
-                this.getAllGroup();
-                this.getUserByRol(params.userId);
-                this.getUserByGroups(params.userId);
+                await this.getUser(params.userId);
+                await this.getAllCompanys();
+                await this.getAllLocations();
+                await this.getAllRols();
+                await this.getAllDepartments();
+                await this.getAllGroup();
+                await this.getAllJobs();
+                await this.getUserByRol(params.userId);
+                await this.getUserByGroups(params.userId);
 
             } else {
                 swal("Información!", "No se obtenieron los datos del usuario!", "error");
@@ -135,7 +157,6 @@ class actualizarUsuario extends Component {
         } catch (error) {
             console.log(error);
         }
-
     }
 
 
@@ -353,6 +374,50 @@ class actualizarUsuario extends Component {
         }
     }
 
+    getAllJobs() {
+        try {
+
+            user
+                .getJobs()
+                .then(response => response.data)
+                .then(data => {
+                    if (data.code === 0) {
+                        this.suggestionsJobsFilters(data.jobs);
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                });
+
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    suggestionsJobsFilters(data) {
+
+        try {
+
+            if (data.length > 0) {
+                let array = [];
+                data.map((job, index) => {
+                    var jobSimple = {
+                        Id: job.jobId,
+                        Name: job.description
+                    }
+                    array.push(jobSimple);
+                    return null;
+                });
+
+                this.setState({ suggestionsJobs: array });
+
+            }
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
     getDepartment = (department) => {
 
         try {
@@ -395,11 +460,22 @@ class actualizarUsuario extends Component {
         }
     }
 
-    getUser(userId) {
+    getJob = (job) => {
 
         try {
 
-            user
+            this.setState({ job: job })
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    async getUser(userId) {
+
+        try {
+
+            await user
                 .getUser(userId)
                 .then(response => response.data)
                 .then(data => {
@@ -487,17 +563,20 @@ class actualizarUsuario extends Component {
                 state: data[0].state,
                 vip: data[0].vip,
                 lockedOut: data[0].lockedOut,
-                locationId: data[0].location,
+                locationId: data[0].locationId,
                 locationName: data[0].locationName,
                 departmentId: data[0].departmentId,
                 departmentName: data[0].departmentName,
-                companyId: data[0].company,
+                companyId: data[0].companyId,
                 companyName: data[0].companyName,
-                rolId: data[0].role,
+                rolId: data[0].rolId,
                 rolName: data[0].rolName,
                 groupId: data[0].groupId,
-                groupName: data[0].groupName
-            });
+                groupName: data[0].groupName,
+                jobId: data[0].jobId,
+                jobName: data[0].description
+            }, function () { });
+
         } catch (error) {
             console.log(error);
         }
@@ -506,13 +585,14 @@ class actualizarUsuario extends Component {
     handleSumit = (event) => {
 
         try {
-                event.preventDefault();
-                this.setState({ loading: true });
-                user.updatedUser(this.state.userId, this.state.userName, this.state.firstName, this.state.lastName, "INTEL", null, 1,
+            event.preventDefault();
+            let userCreated = localStorage.getItem('nickName');
+            this.setState({ loading: true });
+            user.updatedUser(this.state.userId, this.state.userName, this.state.firstName, this.state.lastName, "INTEL", null, 1,
                 parseInt(this.state.departmentId), 1, parseInt(this.state.locationId), parseInt(this.state.companyId), this.state.businessPhone,
-                this.state.homePhone, this.state.mobilePhone, this.state.email, "M",
-                "JJCS", config.date, "JJCS", config.date, "HH:MM:SS", "HH:MM:SS", this.state.pass, config.state, config.state, config.state, parseInt(this.state.rolId),
-                parseInt(this.state.groupId), config.state)
+                this.state.homePhone, this.state.mobilePhone, this.state.email, this.state.gender,
+                userCreated, config.date, userCreated, config.date, "HH:MM:SS", "HH:MM:SS", this.state.pass, config.state, config.state, config.state, parseInt(this.state.rolId),
+                parseInt(this.state.groupId), config.state, this.state.jobId)
                 .then(response => response.data)
                 .then((data) => {
                     if (data.code === 0) {
@@ -521,7 +601,7 @@ class actualizarUsuario extends Component {
                             swal("Información!", "Usuario actualizado de manera correcta!", "success");
                             this.setState({ loading: false });
                         }, 5000);
-                        
+
                     } else {
                         swal("Información!", "Error en la actualización de usuario!", "error");
                         this.setState({ loading: false });
@@ -545,6 +625,21 @@ class actualizarUsuario extends Component {
         } catch (error) {
             console.log(error)
         }
+    }
+
+    handleChangeSelectgender = (event) => {
+
+        try {
+
+            event.preventDefault();
+            const { value } = event.target;
+            this.setState({ gender: value });
+
+
+        } catch (error) {
+            console.log(error);
+        }
+
     }
 
     toggleState = (event) => {
@@ -799,11 +894,11 @@ class actualizarUsuario extends Component {
         const { loading } = this.state;
         if (this.state.redirectUsuarios) {
 
-             return <Redirect from="/actualizarUsuario/:userId" to="/usuarios" exact /> 
+            return <Redirect from="/actualizarUsuario/:userId" to="/usuarios" exact />
         }
         return (
             <div className="container-fluid" data-panel="containerUpdateUser">
-                 <div className="row loading">
+                <div className="row loading">
                     <ClassicSpinner
                         size={100}
                         color="#268EFC"
@@ -824,13 +919,14 @@ class actualizarUsuario extends Component {
                                         </div>
                                         <div className="col-2 pull-right">
                                             <ButtonToolbar>
-                                                <Button type= "submit" variant="primary" size="sm">Guardar</Button>
+                                                <Button type="submit" variant="primary" size="sm">Guardar</Button>
                                                 <Button variant="light" size="sm" onClick={this.redirect}>Cancelar</Button>
                                             </ButtonToolbar>
                                         </div>
                                     </div>
                                 </div>
                                 <div className="card-body">
+
                                     <div className="row">
                                         <div className="col-8">
                                             <div className="form-group row">
@@ -922,7 +1018,9 @@ class actualizarUsuario extends Component {
                                                     <Autocomplete suggestions={this.state.suggestionsdepartments}
                                                         getDepartment={this.getDepartment}
                                                         type={this.state.typeDepartment}
-                                                        userInput={this.state.departmentName} />
+                                                        userInput={this.state.departmentName}
+                                                        placeholder={this.state.placeholderDepartment}
+                                                        idComponent={this.state.idDepartment} />
                                                 </div>
 
                                                 <label htmlFor="businessPhone" className="col-2 col-form-label">Teléfono Oficina:</label>
@@ -948,7 +1046,9 @@ class actualizarUsuario extends Component {
                                                     <Autocomplete suggestions={this.state.suggestionscompanys}
                                                         getCompany={this.getCompany}
                                                         type={this.state.typeCompany}
-                                                        userInput={this.state.companyName} />
+                                                        userInput={this.state.companyName}
+                                                        placeholder={this.state.placeholderCompanys}
+                                                        idComponent={this.state.idCompanys} />
                                                 </div>
 
                                                 <label htmlFor="mobilePhone" className="col-2 col-form-label">Celular:</label>
@@ -968,12 +1068,39 @@ class actualizarUsuario extends Component {
                                     <div className="row">
                                         <div className="col-8">
                                             <div className="form-group row">
+                                                <label htmlFor="lastName" className="col-2 col-form-label">Puesto:</label>
+                                                <div className="col-4">
+                                                    <Autocomplete 
+                                                           suggestions={this.state.suggestionsJobs} 
+                                                           getJob={this.getJob} 
+                                                           type={this.state.typeJob} 
+                                                           placeholder={this.state.placeholderJob} 
+                                                           idComponent={this.state.idJob} />
+                                                </div>
+
+                                                <label htmlFor="homePhone" className="col-2 col-form-label">Genero:</label>
+                                                <div className="col-4">
+                                                    <select className="form-control" id="genero" onChange={this.handleChangeSelectgender}>
+                                                        <option value="">Seleccione</option>
+                                                        <option value="M">Maculino</option>
+                                                        <option value="F">Femenino</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="row">
+                                        <div className="col-8">
+                                            <div className="form-group row">
                                                 <label htmlFor="lastName" className="col-2 col-form-label">Locaciones:</label>
                                                 <div className="col-4">
                                                     <Autocomplete suggestions={this.state.suggestionslocations}
                                                         getLocation={this.getLocation}
                                                         type={this.state.typeLocation}
-                                                        userInput={this.state.locationName} />
+                                                        userInput={this.state.locationName}
+                                                        placeholder={this.state.placeholderLocations}
+                                                        idComponent={this.state.idLocations} />
                                                 </div>
 
                                                 <label htmlFor="homePhone" className="col-2 col-form-label">Teléfono Casa:</label>

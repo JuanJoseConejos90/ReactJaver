@@ -14,7 +14,7 @@ class Autocomplete extends Component {
         super(props);
 
         const { userInput } = props;
-
+        console.log(props);
         this.state = {
             activeSuggestion: 0,
             filteredSuggestions: [],
