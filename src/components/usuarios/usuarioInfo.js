@@ -1,9 +1,17 @@
 import React, { Component } from 'react';
 import { userService as user } from './../../services/user.services';
-import Modal from 'react-bootstrap/Modal';
+import { Redirect } from 'react-router-dom';
 import Breadcrum from './../ui/Breadcrum';
 import Tabs from 'react-bootstrap/Tabs'
 import Tab from 'react-bootstrap/Tab';
+import Button from 'react-bootstrap/Button';
+import ButtonToolbar from 'react-bootstrap/ButtonToolbar';
+import { ClassicSpinner } from "react-spinners-kit";
+import Autocomplete from './../ui/Autocomplete';
+import swal from 'sweetalert';
+import config from './../../config';
+
+const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/;
 
 class usuarioInfo extends Component {
 
@@ -11,62 +19,320 @@ class usuarioInfo extends Component {
         super(props);
 
         this.state = {
-            userName: '',
-            job: '',
-            location: '',
+            userName: "",
+            locationId: "",
             businessPhone: "",
-            homePhone: "",
             mobilePhone: "",
-            idioma:"",
-            zona:"",
-            passActual:"",
-            passNuevo:"",
-            passReNuevo:"",
-            smShow: false,
+            idioma: "",
+            timeZone: "",
+            passActual: "",
+            passNuevo: "",
+            passReNuevo: "",
+            email: "",
+            job: "",
+            idComponent: "locationUser",
+            companyName: "",
+            locationName: "",
+            created: "",
+            loading: false,
+            home: false,
+            show: false,
+            suggestionslocations: [],
+            typeLocation: 'location',
             inicio: 'Inicio',
             modulo: 'Gestión Usuarios',
             componente: 'Información'
         };
 
-
-        this.OpenModal = this.OpenModal.bind(this);
         this.handleChange = this.handleChange.bind(this);
-
-
+        this.updateCuenta = this.updateCuenta.bind(this);
+        this.updateTimeZone = this.updateTimeZone.bind(this);
+        this.updatePass = this.updatePass.bind(this);
+        this.redirectHome = this.redirectHome.bind(this);
+        this.handleChangeIdioma = this.handleChangeIdioma.bind(this);
+        this.handleChangeTimeZone = this.handleChangeTimeZone.bind(this);
     }
 
 
-    componentDidMount() {
+    async componentDidMount() {
 
-        let id =localStorage.getItem('userId');
-        user.getUser(id)
-            .then(response => response.data)
-            .then((data) => {
-                if (data.code === 0) {
-                    this.setState({
-                        userName: data.user[0].firstName + " " + data.user[0].lastName,
-                        location: data.user[0].locationName
+        try {
+
+            this.setState({ loading: true });
+            setTimeout(() => {
+                this.settings();
+                this.setState({ loading: false });
+            }, config.timer);
+
+        } catch (error) {
+            console.log(error);
+        }
+
+    }
+
+    settings() {
+
+        try {
+
+            this.getUser();
+            this.getAllLocations();
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    getUser() {
+        try {
+
+            let id = localStorage.getItem('userId');
+            user.getUser(id)
+                .then(response => response.data)
+                .then((data) => {
+                    if (data.code === 0) {
+                        this.setState({
+                            userName: data.user[0].firstName + " " + data.user[0].lastName,
+                            locationId: data.user[0].locationId,
+                            locationName: data.user[0].locationName,
+                            businessPhone: data.user[0].businessPhone,
+                            mobilePhone: data.user[0].mobilePhone,
+                            email: data.user[0].email,
+                            job: data.user[0].description,
+                            companyName: data.user[0].companyName,
+                            created: data.user[0].created,
+                            timeZone: data.user[0].timeZone,
+                            passActual: data.user[0].passwordUser,
+                            show: true
+                        });
+                    }
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    getAllLocations() {
+        try {
+
+            user.getLocations()
+                .then(response => response.data)
+                .then((data) => {
+                    if (data.code === 0) {
+                        this.suggestionsLocationsFilters(data.locations)
+                    }
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    suggestionsLocationsFilters(data) {
+        try {
+
+            if (data.length > 0) {
+                let array = [];
+                data.map((location, index) => {
+                    var locationSimple = {
+                        Id: location.locationId,
+                        Name: location.locationName
+                    }
+                    array.push(locationSimple);
+                    return null;
+                });
+
+                this.setState({ suggestionslocations: array });
+            }
+
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    getLocation = (location) => {
+        try {
+            this.setState({ locationId: location })
+
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    updateCuenta = (event) => {
+        try {
+
+            event.preventDefault();
+            let id = localStorage.getItem('userId');
+            if (id) {
+
+                this.setState({ loading: true });
+                user.updateCuentabyUser(id, this.state.mobilePhone, this.state.businessPhone, this.state.locationId)
+                    .then(response => response.data)
+                    .then((data) => {
+                        if (data.code === 0) {
+                            setTimeout(() => {
+                                swal("Información!", "Datos actualizados de manera correcta!", "info");
+                                this.setState({ loading: false });
+                            }, 1000);
+                        } else {
+                            setTimeout(() => {
+                                swal("Información!", "Los datos no fueron actualizados", "error");
+                                this.setState({ loading: false });
+                            }, 1000);
+
+                        }
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                        this.setState({ loading: false });
                     });
-                }
-            })
-            .catch((err) => {
-                console.log(err);
-            });
 
+            }
+
+
+        } catch (error) {
+            console.log(error);
+        }
     }
 
-    OpenModal() {
-        this.setState({
-            smShow: true,
-            open: true
-        });
+    updateTimeZone = (event) => {
+
+        try {
+
+            event.preventDefault();
+            let id = localStorage.getItem('userId');
+            if (id) {
+
+                this.setState({ loading: true });
+                user.updateTimeZonebyUser(id, this.state.timeZone)
+                    .then(response => response.data)
+                    .then((data) => {
+                        if (data.code === 0) {
+                            setTimeout(() => {
+                                swal("Información!", "Datos actualizados de manera correcta!", "info");
+                                this.setState({ loading: false });
+                            }, 1000);
+                        } else {
+                            setTimeout(() => {
+                                swal("Información!", "Los datos no fueron actualizados", "error");
+                                this.setState({ loading: false });
+                            }, 1000);
+
+                        }
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                        this.setState({ loading: false });
+                    });
+
+            }
+
+            event.preventDefault();
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    updatePass = (event) => {
+        try {
+
+            event.preventDefault();
+            if (this.state.passNuevo === this.state.passReNuevo) {
+                if (passRegex.test(this.state.passReNuevo)) {
+                    let id = localStorage.getItem('userId');
+                    if (id) {
+                        this.setState({ loading: true });
+                        user.updatePassbyUser(id, this.state.passReNuevo)
+                            .then(response => response.data)
+                            .then((data) => {
+                                if (data.code === 0) {
+                                    setTimeout(() => {
+                                        swal("Información!", "Datos actualizados de manera correcta!", "info");
+                                        this.setState({ loading: false });
+                                    }, 1000);
+                                } else {
+                                    setTimeout(() => {
+                                        swal("Información!", "Los datos no fueron actualizados", "error");
+                                        this.setState({ loading: false });
+                                    }, 1000);
+
+                                }
+                            })
+                            .catch((err) => {
+                                console.log(err);
+                                this.setState({ loading: false });
+                            });
+                    }
+                } else {
+                    swal("Información!", "El password no es lo bastante seguro!", "info");
+                }
+            } else {
+                swal("Información!", "No coinciden los passwords suministrados!", "info");
+            }
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    redirectHome = (event) => {
+        try {
+
+            event.preventDefault();
+            this.setState({ home: true });
+
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     handleChange = (event) => {
         try {
             event.preventDefault();
-            const { name, value } = event.target;
-            console.log(name, value);
+            this.setState({ [event.target.id]: event.target.value });
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    handleChangeIdioma = (event) => {
+        try {
+
+            event.preventDefault();
+            const { value } = event.target;
+            this.setState({ idioma: value });
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    handleChangeTimeZone = (event) => {
+        try {
+
+            event.preventDefault();
+            const { value } = event.target;
+            this.setState({ timeZone: value });
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    selectedTimeZone = (zone) => {
+        try {
+
+            return zone === this.state.timeZone;
 
         } catch (error) {
             console.log(error);
@@ -74,9 +340,19 @@ class usuarioInfo extends Component {
     }
 
     render() {
-        let smClose = () => this.setState({ smShow: false });
+        const { loading } = this.state;
+        if (this.state.home) {
+            return <Redirect to="./home" />
+        }
         return (
             <div className="container-fluid" data-panel="containerAvatar">
+                <div className="row loading">
+                    <ClassicSpinner
+                        size={100}
+                        color="#268EFC"
+                        loading={loading}
+                    />
+                </div>
                 <div className="row">
                     <div className="col-12">
                         <Breadcrum inicio={this.state.inicio} modulo={this.state.modulo} componente={this.state.componente} />
@@ -102,13 +378,12 @@ class usuarioInfo extends Component {
                                         <p className="nameAvatar">{this.state.userName}</p>
                                     </div>
                                     <div className="col-2">
-                                        <button className="btn btn-primary btn-sm" onClick={this.OpenModal} >Editar Perfil</button>
                                     </div>
                                 </div>
                             </div>
                             <div className="card-body">
                                 <div className="row">
-                                    <p className="InfoLocationAvatar">Sabana, San Jose Costa Rica<span className="infoCreacion">-Creado Junio 2018</span></p>
+                                    <p className="InfoLocationAvatar">{this.state.locationName}<span className="infoCreacion">-Creado:{this.state.created.split('T')[0]}</span></p>
                                 </div>
 
                                 <div className="row rowInfoAvatar">
@@ -118,7 +393,7 @@ class usuarioInfo extends Component {
                                             <p className="rowDataTitle">Email:</p>
                                         </div>
                                         <div className="row marginRowData">
-                                            <p className="rowData">juanjoseconejos90@gmail.com</p>
+                                            <p className="rowData">{this.state.email}</p>
                                         </div>
                                     </div>
                                     <div className="col-4">
@@ -127,7 +402,7 @@ class usuarioInfo extends Component {
                                             <p className="rowDataTitle">Puesto:</p>
                                         </div>
                                         <div className="row marginRowData">
-                                            <p className="rowData">Soporte Tecnico</p>
+                                            <p className="rowData">{this.state.job}</p>
                                         </div>
                                     </div>
                                     <div className="col-4">
@@ -136,7 +411,7 @@ class usuarioInfo extends Component {
                                             <p className="rowDataTitle">Empresa:</p>
                                         </div>
                                         <div className="row marginRowData">
-                                            <p className="rowData">ACME Corp</p>
+                                            <p className="rowData">{this.state.companyName}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -148,7 +423,7 @@ class usuarioInfo extends Component {
                                             <p className="rowDataTitle">Ubicación:</p>
                                         </div>
                                         <div className="row marginRowData">
-                                            <p className="rowData">Sabana, San Jose</p>
+                                            <p className="rowData">{this.state.locationName}</p>
                                         </div>
                                     </div>
                                     <div className="col-4">
@@ -157,7 +432,7 @@ class usuarioInfo extends Component {
                                             <p className="rowDataTitle">Teléfono Oficina:</p>
                                         </div>
                                         <div className="row marginRowData">
-                                            <p className="rowData">(506)85992886</p>
+                                            <p className="rowData">{this.state.businessPhone}</p>
                                         </div>
                                     </div>
                                     <div className="col-4">
@@ -166,7 +441,7 @@ class usuarioInfo extends Component {
                                             <p className="rowDataTitle">Teléfono Celular:</p>
                                         </div>
                                         <div className="row marginRowData">
-                                            <p className="rowData">(506)85992886</p>
+                                            <p className="rowData">{this.state.mobilePhone}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -194,13 +469,15 @@ class usuarioInfo extends Component {
                                             <div className="col-8">
                                                 <div className="form-group row">
                                                     <label htmlFor="pass" className="col-3 col-form-label">Ubicacion:</label>
-                                                    <div className="col-4">
-                                                        <input type="text"
-                                                            id="ubicacion"
-                                                            name="ubicacion"
-                                                            className="form-control"
-                                                            onChange={this.handleChange}
-                                                            value={this.state.location} />
+                                                    <div className="col-5">
+                                                        {this.state.show ?
+                                                            <Autocomplete suggestions={this.state.suggestionslocations}
+                                                                getLocation={this.getLocation}
+                                                                placeholder={this.state.locationName}
+                                                                type={this.state.typeLocation}
+                                                                idComponent={this.state.idComponent}
+                                                                userInput={this.state.locationName} />
+                                                        : null}
                                                     </div>
                                                 </div>
                                             </div>
@@ -209,10 +486,10 @@ class usuarioInfo extends Component {
                                             <div className="col-8">
                                                 <div className="form-group row">
                                                     <label htmlFor="pass" className="col-3 col-form-label">Teléfono Oficina:</label>
-                                                    <div className="col-4">
-                                                        <input type="text"
-                                                            id="ubicacion"
-                                                            name="ubicacion"
+                                                    <div className="col-5">
+                                                        <input type="number"
+                                                            id="businessPhone"
+                                                            name="businessPhone"
                                                             className="form-control"
                                                             onChange={this.handleChange}
                                                             value={this.state.businessPhone} />
@@ -224,10 +501,10 @@ class usuarioInfo extends Component {
                                             <div className="col-8">
                                                 <div className="form-group row">
                                                     <label htmlFor="pass" className="col-3 col-form-label">Teléfono Celular:</label>
-                                                    <div className="col-4">
-                                                        <input type="text"
-                                                            id="ubicacion"
-                                                            name="ubicacion"
+                                                    <div className="col-5">
+                                                        <input type="number"
+                                                            id="mobilePhone"
+                                                            name="mobilePhone"
                                                             className="form-control"
                                                             onChange={this.handleChange}
                                                             value={this.state.mobilePhone} />
@@ -235,19 +512,24 @@ class usuarioInfo extends Component {
                                                 </div>
                                             </div>
                                         </div>
+                                        <hr></hr>
+                                        <div className="row btnActualiza">
+                                            <ButtonToolbar>
+                                                <Button variant="primary" size="sm" className="btncog" onClick={this.updateCuenta}>Actualizar</Button>
+                                                <Button variant="light" size="sm" className="btnfilter" onClick={this.redirectHome}>Cancelar</Button>
+                                            </ButtonToolbar>
+                                        </div>
                                     </Tab>
                                     <Tab eventKey="Configuracion" title="Configuración">
-                                    <div className="row">
+                                        <div className="row">
                                             <div className="col-8">
                                                 <div className="form-group row">
                                                     <label htmlFor="pass" className="col-3 col-form-label">Idioma:</label>
-                                                    <div className="col-4">
-                                                        <input type="text"
-                                                            id="idioma"
-                                                            name="idioma"
-                                                            className="form-control"
-                                                            onChange={this.handleChange}
-                                                            value={this.state.idioma} />
+                                                    <div className="col-5">
+                                                        <select className="form-control" id="idioma" onChange={this.handleChangeIdioma}>
+                                                            <option value="E">Español</option>
+                                                            <option value="I">Ingles</option>
+                                                        </select>
                                                     </div>
                                                 </div>
                                             </div>
@@ -256,27 +538,34 @@ class usuarioInfo extends Component {
                                             <div className="col-8">
                                                 <div className="form-group row">
                                                     <label htmlFor="pass" className="col-3 col-form-label">Zona Horaria:</label>
-                                                    <div className="col-4">
-                                                        <input type="text"
-                                                            id="zona"
-                                                            name="zona"
-                                                            className="form-control"
-                                                            onChange={this.handleChange}
-                                                            value={this.state.zone} />
+                                                    <div className="col-5">
+                                                        <select className="form-control" id="timeZone" value={this.state.timeZone} onChange={this.handleChangeTimeZone}>
+                                                            <option value="CST">Central Standard Time</option>
+                                                            <option value="EST">Eastern Standard Time</option>
+                                                            <option value="ACT">North America Standard Time</option>
+                                                            <option value="ADT">South America Standard Time</option>
+                                                        </select>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
+                                        <hr></hr>
+                                        <div className="row btnActualiza">
+                                            <ButtonToolbar>
+                                                <Button variant="primary" size="sm" className="btncog" onClick={this.updateTimeZone}>Actualizar</Button>
+                                                <Button variant="light" size="sm" className="btnfilter" onClick={this.redirectHome}>Cancelar</Button>
+                                            </ButtonToolbar>
+                                        </div>
                                     </Tab>
                                     <Tab eventKey="CambiarPass" title="Cambiar contraseña">
-                                    <div className="row">
+                                        <div className="row">
                                             <div className="col-8">
                                                 <div className="form-group row">
                                                     <label htmlFor="pass" className="col-3 col-form-label">contraseña Actual:</label>
                                                     <div className="col-4">
-                                                        <input type="text"
-                                                            id="zona"
-                                                            name="zona"
+                                                        <input type="password"
+                                                            id="passActual"
+                                                            name="passActual"
                                                             className="form-control"
                                                             onChange={this.handleChange}
                                                             value={this.state.passActual} />
@@ -289,9 +578,9 @@ class usuarioInfo extends Component {
                                                 <div className="form-group row">
                                                     <label htmlFor="pass" className="col-3 col-form-label">contraseña Nueva:</label>
                                                     <div className="col-4">
-                                                        <input type="text"
-                                                            id="zona"
-                                                            name="zona"
+                                                        <input type="password"
+                                                            id="passNuevo"
+                                                            name="passNuevo"
                                                             className="form-control"
                                                             onChange={this.handleChange}
                                                             value={this.state.passNuevo} />
@@ -302,11 +591,11 @@ class usuarioInfo extends Component {
                                         <div className="row">
                                             <div className="col-8">
                                                 <div className="form-group row">
-                                                <label htmlFor="pass" className="col-3 col-form-label">contraseña Nueva:</label>
+                                                    <label htmlFor="pass" className="col-3 col-form-label">confirmar contraseña:</label>
                                                     <div className="col-4">
-                                                        <input type="text"
-                                                            id="zona"
-                                                            name="zona"
+                                                        <input type="password"
+                                                            id="passReNuevo"
+                                                            name="passReNuevo"
                                                             className="form-control"
                                                             onChange={this.handleChange}
                                                             value={this.state.passReNuevo} />
@@ -314,24 +603,20 @@ class usuarioInfo extends Component {
                                                 </div>
                                             </div>
                                         </div>
-                                        
+                                        <hr></hr>
+                                        <div className="row btnActualiza">
+                                            <ButtonToolbar>
+                                                <Button variant="primary" size="sm" className="btncog" onClick={this.updatePass}>Actualizar</Button>
+                                                <Button variant="light" size="sm" className="btnfilter" onClick={this.redirectHome}>Cancelar</Button>
+                                            </ButtonToolbar>
+                                        </div>
+
                                     </Tab>
                                 </Tabs>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <Modal
-                    size="sm"
-                    show={this.state.smShow}
-                    onHide={smClose}
-                    aria-labelledby="example-modal-sizes-title-sm">
-                    <Modal.Header closeButton>
-                        <Modal.Title id="example-modal-sizes-title-sm">Configuración</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body></Modal.Body>
-                </Modal>
             </div>
         );
     }

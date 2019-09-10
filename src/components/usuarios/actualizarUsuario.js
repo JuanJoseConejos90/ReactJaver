@@ -3,7 +3,6 @@ import { Redirect } from 'react-router-dom';
 import ListGroup from 'react-bootstrap/ListGroup'
 import Breadcrum from './../ui/Breadcrum';
 import Autocomplete from './../ui/Autocomplete';
-import Progress from "react-progress-2";
 import { userService as user } from './../../services/user.services';
 import { ClassicSpinner } from "react-spinners-kit";
 import swal from 'sweetalert';
@@ -57,6 +56,7 @@ class actualizarUsuario extends Component {
             vip: '',
             checkboxLoad: false,
             checkboxBlocked: false,
+            show: false,
             lockedOut: '',
             suggestionscompanys: [],
             suggestionslocations: [],
@@ -121,36 +121,48 @@ class actualizarUsuario extends Component {
     }
 
     componentDidMount() {
-
-
         try {
-            this.settings();
+
+            this.setState({ loading: true });
+            setTimeout(() => {
+                this.settings();
+                this.setState({ loading: false });
+            }, config.timer);
+
+            try {
+
+            } catch (error) {
+                this.setState({ loading: false });
+                console.log(error);
+            }
+
+
 
         } catch (error) {
+            this.setState({ loading: false });
             console.log(error);
         }
-
     }
 
-    async settings() {
+    settings() {
         try {
 
             const { match: { params } } = this.props;
 
             if (params.userId) {
 
-                await this.getUser(params.userId);
-                await this.getAllCompanys();
-                await this.getAllLocations();
-                await this.getAllRols();
-                await this.getAllDepartments();
-                await this.getAllGroup();
-                await this.getAllJobs();
-                await this.getUserByRol(params.userId);
-                await this.getUserByGroups(params.userId);
+                this.getUser(params.userId);
+                this.getAllCompanys();
+                this.getAllLocations();
+                this.getAllRols();
+                this.getAllDepartments();
+                this.getAllGroup();
+                this.getAllJobs();
+                this.getUserByRol(params.userId);
+                this.getUserByGroups(params.userId);
 
             } else {
-                swal("Información!", "No se obtenieron los datos del usuario!", "error");
+                swal("Información!", "No se obtuvo los datos del usuario!", "error");
             }
 
 
@@ -551,6 +563,7 @@ class actualizarUsuario extends Component {
 
             this.setState({ usuario: array });
             this.setState({
+                show: true,
                 userId: data[0].userId,
                 userName: data[0].nickName,
                 firstName: data[0].firstName,
@@ -600,7 +613,7 @@ class actualizarUsuario extends Component {
                         setTimeout(() => {
                             swal("Información!", "Usuario actualizado de manera correcta!", "success");
                             this.setState({ loading: false });
-                        }, 5000);
+                        }, config.timer);
 
                     } else {
                         swal("Información!", "Error en la actualización de usuario!", "error");
@@ -884,9 +897,18 @@ class actualizarUsuario extends Component {
     }
 
     redirect = event => {
-        this.setState(() => ({
-            redirectUsuarios: true
-        }));
+
+        try {
+
+            event.preventDefault();
+            this.setState(() => ({
+                redirectUsuarios: true
+            }));
+
+        } catch (error) {
+            console.log(error)
+        }
+
 
     }
 
@@ -945,7 +967,8 @@ class actualizarUsuario extends Component {
                                                     <label className="form-check-label lblCheckBox" htmlFor="defaultCheck1">Activo</label>
                                                     <input className="form-check-input valuecheckboxActive"
                                                         type="checkbox"
-                                                        id="checkActive" onClick={(event) => this.toggleState(event)}
+                                                        id="checkActivebyUser"
+                                                        onClick={(event) => this.toggleState(event)}
                                                         defaultChecked={this.state.checkboxState}
                                                         value={this.state.checkboxState} />
                                                 </div>
@@ -972,7 +995,7 @@ class actualizarUsuario extends Component {
                                                     <label className="form-check-label lblCheckBox" htmlFor="defaultCheck1">Vip:</label>
                                                     <input className="form-check-input valuecheckboxVip"
                                                         type="checkbox"
-                                                        id="checkActive" onClick={(event) => this.toggleVip(event)}
+                                                        id="checkActiveVip" onClick={(event) => this.toggleVip(event)}
                                                         defaultChecked={this.state.checkboxVIP}
                                                         value={this.state.checkboxVIP} />
                                                 </div>
@@ -1015,12 +1038,13 @@ class actualizarUsuario extends Component {
                                             <div className="form-group row">
                                                 <label htmlFor="lastName" className="col-2 col-form-label">Departamentos:</label>
                                                 <div className="col-4">
-                                                    <Autocomplete suggestions={this.state.suggestionsdepartments}
-                                                        getDepartment={this.getDepartment}
-                                                        type={this.state.typeDepartment}
-                                                        userInput={this.state.departmentName}
-                                                        placeholder={this.state.placeholderDepartment}
-                                                        idComponent={this.state.idDepartment} />
+                                                    {this.state.show ?
+                                                        <Autocomplete suggestions={this.state.suggestionsdepartments}
+                                                            getDepartment={this.getDepartment}
+                                                            type={this.state.typeDepartment}
+                                                            userInput={this.state.departmentName}
+                                                            idComponent={this.state.idDepartment} />
+                                                        : null}
                                                 </div>
 
                                                 <label htmlFor="businessPhone" className="col-2 col-form-label">Teléfono Oficina:</label>
@@ -1043,12 +1067,14 @@ class actualizarUsuario extends Component {
                                             <div className="form-group row">
                                                 <label htmlFor="lastName" className="col-2 col-form-label">Compañias:</label>
                                                 <div className="col-4">
-                                                    <Autocomplete suggestions={this.state.suggestionscompanys}
-                                                        getCompany={this.getCompany}
-                                                        type={this.state.typeCompany}
-                                                        userInput={this.state.companyName}
-                                                        placeholder={this.state.placeholderCompanys}
-                                                        idComponent={this.state.idCompanys} />
+                                                    {this.state.show ?
+                                                        <Autocomplete suggestions={this.state.suggestionscompanys}
+                                                            getCompany={this.getCompany}
+                                                            type={this.state.typeCompany}
+                                                            userInput={this.state.companyName}
+                                                            placeholder={this.state.placeholderCompanys}
+                                                            idComponent={this.state.idCompanys} />
+                                                        : null}
                                                 </div>
 
                                                 <label htmlFor="mobilePhone" className="col-2 col-form-label">Celular:</label>
@@ -1070,18 +1096,20 @@ class actualizarUsuario extends Component {
                                             <div className="form-group row">
                                                 <label htmlFor="lastName" className="col-2 col-form-label">Puesto:</label>
                                                 <div className="col-4">
-                                                    <Autocomplete 
-                                                           suggestions={this.state.suggestionsJobs} 
-                                                           getJob={this.getJob} 
-                                                           type={this.state.typeJob} 
-                                                           placeholder={this.state.placeholderJob} 
-                                                           idComponent={this.state.idJob} />
+                                                    {this.state.show ?
+                                                        <Autocomplete
+                                                            suggestions={this.state.suggestionsJobs}
+                                                            getJob={this.getJob}
+                                                            type={this.state.typeJob}
+                                                            placeholder={this.state.placeholderJob}
+                                                            userInput={this.state.jobName}
+                                                            idComponent={this.state.idJob} />
+                                                        : null}
                                                 </div>
 
                                                 <label htmlFor="homePhone" className="col-2 col-form-label">Genero:</label>
                                                 <div className="col-4">
-                                                    <select className="form-control" id="genero" onChange={this.handleChangeSelectgender}>
-                                                        <option value="">Seleccione</option>
+                                                    <select className="form-control" id="genero" value={this.state.gender} onChange={this.handleChangeSelectgender}>
                                                         <option value="M">Maculino</option>
                                                         <option value="F">Femenino</option>
                                                     </select>
@@ -1095,12 +1123,14 @@ class actualizarUsuario extends Component {
                                             <div className="form-group row">
                                                 <label htmlFor="lastName" className="col-2 col-form-label">Locaciones:</label>
                                                 <div className="col-4">
-                                                    <Autocomplete suggestions={this.state.suggestionslocations}
-                                                        getLocation={this.getLocation}
-                                                        type={this.state.typeLocation}
-                                                        userInput={this.state.locationName}
-                                                        placeholder={this.state.placeholderLocations}
-                                                        idComponent={this.state.idLocations} />
+                                                    {this.state.show ?
+                                                        <Autocomplete suggestions={this.state.suggestionslocations}
+                                                            getLocation={this.getLocation}
+                                                            type={this.state.typeLocation}
+                                                            userInput={this.state.locationName}
+                                                            placeholder={this.state.placeholderLocations}
+                                                            idComponent={this.state.idLocations} />
+                                                        : null}
                                                 </div>
 
                                                 <label htmlFor="homePhone" className="col-2 col-form-label">Teléfono Casa:</label>
@@ -1143,7 +1173,7 @@ class actualizarUsuario extends Component {
                                                             <label className="form-check-label" htmlFor="defaultCheck1">Cambiar Contraseña al ingresar:</label>
                                                             <input className="form-check-input valuecheckboxActive"
                                                                 type="checkbox"
-                                                                id="checkActive" onClick={(event) => this.toggleChangeLoad(event)}
+                                                                id="checkActiveChangePass" onClick={(event) => this.toggleChangeLoad(event)}
                                                                 defaultChecked={this.state.checkboxLoad}
                                                                 value={this.state.checkboxLoad} />
                                                         </div>
@@ -1158,7 +1188,7 @@ class actualizarUsuario extends Component {
                                                             <label className="form-check-label" htmlFor="defaultCheck1">Bloquear:</label>
                                                             <input className="form-check-input valuecheckboxActive"
                                                                 type="checkbox"
-                                                                id="checkActive" onClick={(event) => this.toggleLocked(event)}
+                                                                id="checkActiveBlock" onClick={(event) => this.toggleLocked(event)}
                                                                 defaultChecked={this.state.checkboxBlocked}
                                                                 value={this.state.checkboxBlocked} />
                                                         </div>
@@ -1335,8 +1365,6 @@ class actualizarUsuario extends Component {
                         </ButtonToolbar>
                     </Modal.Footer>
                 </Modal>
-
-                <Progress.Component style={{ background: 'orange' }} thumbStyle={{ background: 'green' }} />
             </div >
         );
     }

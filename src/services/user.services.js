@@ -1,10 +1,12 @@
 import axios from 'axios';
 
 export const userService = {
-    login, getUser, getgroups, getrols, getusers, getInfotbUsers,
+    login, getUser, getgroups, getrols, getusers, getInfotbUsers, deleteUserbyId,
     getQueryRolFilter, getQueryUserFilter, getFilterbyDataType,
     getCompanys, getLocations, getDepartments, getGroups, createdUser, updatedUser, getUserbyRols,
-    getUserbyGroup, createdUserbyRol, createdUserbyGroup, deleteUserbyRol, deleteUserbyGroup, getJobs
+    getUserbyGroup, createdUserbyRol, createdUserbyGroup, deleteUserbyRol, deleteUserbyGroup, getJobs,
+    sendEmailPass, updatePassbyUser, updateTimeZonebyUser, updateCuentabyUser, updatePassbyeEmail,
+    activePass, validateToken
 };
 
 async function getInfotbUsers() {
@@ -19,7 +21,6 @@ async function getInfotbUsers() {
     const data = {};
     return await axios.post(url, data, axiosConfig);
 }
-
 
 async function login(username, password) {
 
@@ -170,6 +171,17 @@ async function updatedUser(userId, nickName, fistName, lastName, title, photo, m
     return await axios.put(url, data, axiosConfig);
 }
 
+async function deleteUserbyId(userId, state) {
+    const url = `/api/users/deleteUser/${userId}/${state}`;
+    let axiosConfig = {
+        headers: {
+            'Content-Type': 'application/json;charset=UTF-8',
+            'Access-Control-Allow-Origin': '*'
+        }
+    };
+    return await axios.delete(url, axiosConfig);
+};
+
 async function getUserbyRols(userid) {
     const url = `/api/Utils/getUserbyRol/${userid}`;
     let axiosConfig = { headers: { 'Content-Type': 'application/json;charset=UTF-8', 'Access-Control-Allow-Origin': '*' } };
@@ -232,5 +244,94 @@ async function getJobs() {
     };
     return await axios.get(url, axiosConfig);
 }
+
+async function sendEmailPass(email) {
+
+    const url = '/api/Emails/sendEmail';
+    let axiosConfig = { headers: { 'Content-Type': 'application/json;charset=UTF-8', 'Access-Control-Allow-Origin': '*' } };
+    const data = { email: email };
+    return await axios.post(url, data, axiosConfig);
+};
+
+async function updatePassbyUser(userId, pass) {
+
+    const url = '/api/Utils/changePassword';
+    let axiosConfig = {
+        headers: {
+            'Content-Type': 'application/json;charset=UTF-8',
+            'Access-Control-Allow-Origin': '*',
+            'Authorization': localStorage.getItem('token')
+        }
+    };
+    const data = { userId: userId, pass: pass };
+    return await axios.put(url, data, axiosConfig);
+};
+
+async function updateTimeZonebyUser(userId, timeZone) {
+
+    const url = '/api/Utils/updateTimeZone';
+    let axiosConfig = {
+        headers: {
+            'Content-Type': 'application/json;charset=UTF-8',
+            'Access-Control-Allow-Origin': '*',
+            'Authorization': localStorage.getItem('token')
+        }
+    };
+    const data = { userId: userId, timeZone: timeZone };
+    return await axios.put(url, data, axiosConfig);
+};
+
+async function updateCuentabyUser(userId, mobilePhone, businnesPhone, locationId) {
+
+    const url = '/api/Utils/updateCuenta';
+    let axiosConfig = {
+        headers: {
+            'Content-Type': 'application/json;charset=UTF-8',
+            'Access-Control-Allow-Origin': '*',
+            'Authorization': localStorage.getItem('token')
+        }
+    };
+    const data = { userId: userId, mobilePhone: mobilePhone, businnesPhone: businnesPhone, locationId: locationId };
+    return await axios.put(url, data, axiosConfig);
+};
+
+async function updatePassbyeEmail(email, pass) {
+
+    const url = '/api/Utils/updatePasswordByEmail';
+    let axiosConfig = {
+        headers: {
+            'Content-Type': 'application/json;charset=UTF-8',
+            'Access-Control-Allow-Origin': '*'
+        }
+    };
+    const data = { email: email, pass: pass };
+    return await axios.put(url, data, axiosConfig);
+};
+
+async function activePass(email) {
+
+    const url = '/api/Utils/activePass';
+    let axiosConfig = {
+        headers: {
+            'Content-Type': 'application/json;charset=UTF-8',
+            'Access-Control-Allow-Origin': '*'
+        }
+    };
+    const data = { email: email };
+    return await axios.post(url, data, axiosConfig);
+};
+
+async function validateToken(token) {
+
+    const url = '/api/Utils/validateToken';
+    let axiosConfig = {
+        headers: {
+            'Content-Type': 'application/json;charset=UTF-8',
+            'Access-Control-Allow-Origin': '*'
+        }
+    };
+    const data = { token: token };
+    return await axios.post(url, data, axiosConfig);
+};
 
 

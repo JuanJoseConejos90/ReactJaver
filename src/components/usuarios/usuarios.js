@@ -11,7 +11,6 @@ import ListGroup from 'react-bootstrap/ListGroup'
 import Modal from 'react-bootstrap/Modal';
 import Moment from 'react-moment';
 import 'moment-timezone';
-import Progress from "react-progress-2";
 import { ClassicSpinner } from "react-spinners-kit";
 import Form from 'react-bootstrap/Form';
 import Col from 'react-bootstrap/Col';
@@ -21,7 +20,6 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import swal from 'sweetalert';
 import $ from 'jquery';
-
 
 class usuarios extends Component {
 
@@ -37,6 +35,7 @@ class usuarios extends Component {
             filterSearch: [],
             filtersDb: [],
             columnsType: [],
+            usersDeleted: [],
             filterSettings: [{ property: "", value: "", operador: "" }],
             filterCount: 0,
             filterCreated: 1,
@@ -44,6 +43,7 @@ class usuarios extends Component {
             colapse: false,
             showModal: false,
             loading: false,
+            direction: 'asc',
             inicio: 'Inicio',
             modulo: 'Gestión Usuarios',
             componente: 'Usuarios'
@@ -63,27 +63,165 @@ class usuarios extends Component {
         this.loadData = this.loadData.bind(this);
         this.deleteFilter = this.deleteFilter.bind(this);
         this.handleChangeActionBydelete = this.handleChangeActionBydelete.bind(this);
+        this.toggleDelete = this.toggleDelete.bind(this);
+        this.deletedUser = this.deletedUser.bind(this);
+        this.onSort = this.onSort.bind(this)
+    }
+
+    onSort = (event, key) => {
+        try {
+            event.preventDefault();
+            let direction;
+            if (this.state.direction === 'asc') {
+                direction = 'desc';
+            } else if (this.state.direction === 'desc') {
+                direction = 'asc';
+            }
+            const sortedUsers = this.state.users.sort((a, b) => {
+                switch (key) {
+                    case 'userId':
+                        const userIdF = a.userId;
+                        const userIdL = b.userId;
+                        if (userIdF < userIdL)
+                            return -1;
+                        if (userIdF > userIdL)
+                            return 1;
+                        else return 0;
+
+                    case 'nickName':
+                        const nickNameF = a.nickName.toUpperCase();
+                        const nickNameL = b.nickName.toUpperCase();
+                        if (nickNameF < nickNameL)
+                            return -1;
+                        if (nickNameF > nickNameL)
+                            return 1;
+                        else return 0;
+
+                    case 'firstName':
+                        const firstNameF = a.firstName.toUpperCase();
+                        const firstNameL = b.firstName.toUpperCase();
+                        if (firstNameF < firstNameL)
+                            return -1;
+                        if (firstNameF > firstNameL)
+                            return 1;
+                        else return 0;
+
+                    case 'lastName':
+                        const lastNameF = a.lastName.toUpperCase();
+                        const lastNameL = b.lastName.toUpperCase();
+                        if (lastNameF < lastNameL)
+                            return -1;
+                        if (lastNameF > lastNameL)
+                            return 1;
+                        else return 0;
+
+                    case 'email':
+                        const emailF = a.email.toUpperCase();
+                        const emailL = b.email.toUpperCase();
+                        if (emailF < emailL)
+                            return -1;
+                        if (emailF > emailL)
+                            return 1;
+                        else return 0;
+
+                    case 'state':
+                        const stateF = a.state.toUpperCase();
+                        const stateL = b.state.toUpperCase();
+                        if (stateF < stateL)
+                            return -1;
+                        if (stateF > stateL)
+                            return 1;
+                        else return 0;
+
+                    case 'created':
+                        const createdF = a.created;
+                        const createdL = b.created;
+                        if (createdF < createdL)
+                            return -1;
+                        if (createdF > createdL)
+                            return 1;
+                        else return 0;
+
+                    case 'updated':
+                        const updatedF = a.updated;
+                        const updatedL = b.updated;
+                        if (updatedF < updatedL)
+                            return -1;
+                        if (updatedF > updatedL)
+                            return 1;
+                        else return 0;
+
+                    case 'updateBy':
+                        const updateByF = a.updateBy;
+                        const updateByL = b.updateBy;
+                        if (updateByF < updateByL)
+                            return -1;
+                        if (updateByF > updateByL)
+                            return 1;
+                        else return 0;
+
+                    default:
+                        break;
+                }
+
+                return null;
+            })
+
+            if (direction === 'desc') {
+                sortedUsers.reverse()
+            }
+
+            this.setState({ users: sortedUsers });
+            this.setState({ direction: direction });
+
+        } catch (error) {
+            console.log(error);
+        }
     }
 
 
-    handleChange = async (event) => {
+    handleChange = (event) => {
 
         try {
 
-            let data = event.target.value.toUpperCase();
-            await this.setState({ buscar: data });
-            const { users } = this.state
-            let usersFilters = users.filter((item => {
-                return item.firstName.toUpperCase().indexOf(data) > -1;
-            }));
-
-            await this.setState({ users: usersFilters });
+            event.preventDefault();
+            let data = event.target.value;
+            this.setState({ buscar: data });
+            console.log(this.state.buscar);
 
         } catch (error) {
             console.log(error);
         }
 
     };
+
+    toggleDelete = (event) => {
+
+        try {
+
+            let data = event.currentTarget.attributes['data-id'].value;
+            if (this.state.usersDeleted.indexOf(data) === -1) {
+                this.setState(prevState => ({
+                    usersDeleted: [...prevState.usersDeleted, data]
+                }));
+
+            } else {
+                var index = this.state.usersDeleted.indexOf(data);
+                if (index > -1) {
+                    let data = this.state.usersDeleted;
+                    data.splice(index, 1);
+                    this.setState(prevState => ({
+                        usersDeleted: [...prevState.usersDeleted, data]
+                    }));
+                }
+            }
+
+
+        } catch (error) {
+            console.log(error);
+        }
+
+    }
 
     colapseFilter = () => {
         this.setState({
@@ -104,8 +242,6 @@ class usuarios extends Component {
         try {
 
             if (this.state.keysSelected.length > 0) {
-
-                Progress.show();
                 var arrayOfStrings = this.state.keysSelected;
                 var query = arrayOfStrings.join();
                 user.getQueryUserFilter(query)
@@ -115,19 +251,14 @@ class usuarios extends Component {
                             this.setState({ users: data.users, showModal: false });
                             this.getItemHeader(data.users[0]);
                             this.forceUpdate();
-                            Progress.hide();
-
                         }
                     })
                     .catch((err) => {
                         console.log(err);
-                        Progress.hide();
                     });
 
             } else {
-                Progress.show();
                 swal("Información!", "Se debe se seleccionar al menos opción!", "info");
-                Progress.hide();
             }
 
         } catch (error) {
@@ -163,7 +294,6 @@ class usuarios extends Component {
     getUsers() {
         try {
 
-            Progress.show();
             this.setState({ loading: true });
             user.getusers()
                 .then(response => response.data)
@@ -179,9 +309,8 @@ class usuarios extends Component {
                             let key = Object.keys(data.users[0]);
                             filterSettings[0].property = key[0];
                             this.setState({ filterSettings });
-                            Progress.hide();
                             this.setState({ loading: false });
-                        }, 5000);
+                        }, 1000);
                     }
                 })
                 .catch((err) => {
@@ -193,6 +322,7 @@ class usuarios extends Component {
             console.log(error);
         }
     }
+
     getColumnsType() {
 
         try {
@@ -249,7 +379,9 @@ class usuarios extends Component {
             if (this.state.users.length > 0) {
                 let header = Object.keys(this.state.users[0]);
                 return header.map((key, index) => {
-                    return <th key={index}>{key.trim()}</th>
+                    //let keyTranslate = this.getColumnNamesTranslate(key);
+                    //return <th key={index}>{keyTranslate}</th>
+                    return <th key={index} onClick={e => this.onSort(e, key)}><span className="sort-by">{key.trim()}</span></th>
 
                 })
             }
@@ -275,15 +407,22 @@ class usuarios extends Component {
     renderTableData() {
 
         try {
-
             if (this.state.users.length > 0) {
-                return this.state.users.map((user, index) => {
-                    return (
-                        <tr key={user.userId}>
-                            {this.renderRows(index)}
-                        </tr>
-                    )
-                })
+                return this.state.users
+                    .filter((user, index) => {
+                        return user.nickName.indexOf(this.state.buscar) >= 0 ||
+                            user.firstName.indexOf(this.state.buscar) >= 0 ||
+                            user.lastName.indexOf(this.state.buscar) >= 0 ||
+                            user.email.indexOf(this.state.buscar) >= 0 ||
+                            user.state.indexOf(this.state.buscar) >= 0
+                    })
+                    .map((user, index) => {
+                        return (
+                            <tr key={user.userId}>
+                                {this.renderRowTables(user)}
+                            </tr>
+                        )
+                    })
             }
 
         } catch (error) {
@@ -291,32 +430,33 @@ class usuarios extends Component {
         }
     }
 
-    renderRows(indice) {
-
+    renderRowTables(user) {
         try {
 
             let header = Object.keys(this.state.users[0]);
             return header.map((key, index) => {
-                var value = (this.isDate(this.state.users[indice][key]) ? this.parseMoment(this.state.users[indice][key]) : this.state.users[indice][key]);
+                var value = (this.isDate(user[key]) ? this.parseMoment(user[key]) : user[key]);
+                var dataId = user[key];
                 var path = "/actualizarUsuario/" + value;
                 if (index === 0) {
                     return <td key={index}>
                         <div className="form-check">
-                            <input type="checkbox" className="form-check-input" id="checkId" />
+                            <input type="checkbox"
+                                className="form-check-input"
+                                id="checkId"
+                                data-id={dataId}
+                                onClick={(event) => this.toggleDelete(event)} />
                             <Link to={path}>{value}</Link>
                         </div>
                     </td>
                 } else {
                     return <td key={index}>{value}</td>
                 }
-
             })
 
         } catch (error) {
             console.log(error);
         }
-
-
     }
 
     isDate(value) {
@@ -391,11 +531,56 @@ class usuarios extends Component {
             let header = Object.keys(data);
             let array = [];
             header.map((key) => {
+                //let keyTranslate = this.getColumnNamesTranslate(key);
+                //array.push(keyTranslate);
                 array.push(key);
                 return null;
             });
 
             this.setState({ keys: array });
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    getColumnNamesTranslate(column) {
+        try {
+
+            let name = '';
+            switch (column) {
+                case "userId":
+                    name = "Id";
+                    break;
+                case "nickName":
+                    name = "Usuario";
+                    break;
+                case "firstName":
+                    name = "Nombre";
+                    break;
+                case "lastName":
+                    name = "Apellido";
+                    break;
+                case "email":
+                    name = "Correo";
+                    break;
+                case "state":
+                    name = "Estado";
+                    break;
+                case "created":
+                    name = "Creado";
+                    break;
+                case "updated":
+                    name = "Actualizado";
+                    break;
+                case "updateBy":
+                    name = "Actualizado por";
+                    break;
+                default:
+                    break;
+            }
+
+            return name;
 
         } catch (error) {
             console.log(error);
@@ -467,11 +652,10 @@ class usuarios extends Component {
 
         try {
 
-            Progress.show();
             const { filterSettings } = this.state;
             let index = event.target.dataset.index;
             var property = $(`#property-${index} option:selected`).text();
-            filterSettings[index].property = property;
+            filterSettings[index].property = property
             this.setState({ filterSettings });
             let indexColum = event.target.value;
             let type = event.currentTarget[indexColum].innerHTML;
@@ -482,12 +666,10 @@ class usuarios extends Component {
                     if (data.code === 0) {
                         this.changeFilterOPTIONS(index, data.filters)
                         this.forceUpdate();
-                        Progress.hide();
                     }
                 })
                 .catch((err) => {
                     console.log(err);
-                    Progress.hide();
                 });
 
         } catch (error) {
@@ -514,14 +696,12 @@ class usuarios extends Component {
 
         try {
 
-            Progress.show();
             event.preventDefault();
             const { filterSettings } = this.state;
             let index = event.target.dataset.index;
             var operador = $(`#operador-${index} option:selected`).text();
             filterSettings[index].operador = operador;
             this.setState({ filterSettings });
-            Progress.hide();
 
         } catch (error) {
             console.log(error)
@@ -555,12 +735,10 @@ class usuarios extends Component {
                 try {
 
                     event.preventDefault();
-                    Progress.show();
                     var datos = this.state.users;
                     const { filterSettings } = this.state;
                     datos = datos.filter(createFilter(...filterSettings));
                     this.setState({ users: datos });
-                    Progress.hide();
 
 
                 } catch (error) {
@@ -598,6 +776,68 @@ class usuarios extends Component {
         }
 
     };
+
+    deletedUser(event) {
+        try {
+
+            event.preventDefault();
+            swal({
+                title: "Información",
+                text: "Desea eliminar los usuarios seleccionados!",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            })
+                .then((willDelete) => {
+                    if (willDelete) {
+                        this.deleteUsersbyId();
+                        this.getSettings();
+                    }
+                });
+
+
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    deleteUsersbyId() {
+        try {
+
+            this.state.usersDeleted.map((user, index) => {
+                this.deletedUserAPI(user);
+                return null;
+            });
+
+        } catch (error) {
+            console.log(error);
+        }
+
+    }
+
+    deletedUserAPI(id) {
+
+        try {
+
+            if (id) {
+
+                user.deleteUserbyId(id, "E")
+                    .then(response => response.data)
+                    .then((data) => {
+                        if (data.code === 0) {
+                            swal("Información!", "Los usuarios han sido borrados de manera correcta!", "success");
+                        }
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                    });
+            }
+
+        } catch (error) {
+            console.log(error);
+        }
+
+    }
 
     renderFilterDynamic() {
         try {
@@ -698,7 +938,7 @@ class usuarios extends Component {
         const { loading } = this.state;
         return (
             <div className="container-fluid" data-panel="containerUsers" id="PanelContainer" key="PanelContainer">
-                 <div className="row loading">
+                <div className="row loading">
                     <ClassicSpinner
                         size={100}
                         color="#268EFC"
@@ -762,7 +1002,7 @@ class usuarios extends Component {
                                         </Collapse>
                                     </div>
                                 </div>
-                                <table ref={this.table} className="table table-striped base-table" key="tableUser">
+                                <table ref={this.tableUser} id="tableUser" className="table table-striped base-table" key="tableUser">
                                     <thead>
                                         <tr key="thTable">{this.renderTableHeader()}</tr>
                                     </thead>
@@ -772,10 +1012,8 @@ class usuarios extends Component {
                                 </table>
                                 <div className="row">
                                     <div className="col-6 DropdownButtonActions">
-                                        <DropdownButton id="dropdown-item-button"
-                                            drop={'right'}
-                                            title="Selecciones acciones">
-                                            <Dropdown.Item as="button">Eliminar</Dropdown.Item>
+                                        <DropdownButton id="dropdown-item-button" drop={'right'} title="Selecciones acciones">
+                                            <Dropdown.Item as="button" onClick={this.deletedUser}>Eliminar</Dropdown.Item>
                                         </DropdownButton>
                                     </div>
                                 </div>
@@ -828,7 +1066,6 @@ class usuarios extends Component {
                         </ButtonToolbar>
                     </Modal.Footer>
                 </Modal>
-                <Progress.Component style={{ background: 'orange' }} thumbStyle={{ background: 'green' }} />
             </div>
         );
     }

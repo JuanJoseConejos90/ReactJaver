@@ -17,7 +17,7 @@ class login extends Component {
             loginAuth: false,
             username: '',
             password: '',
-            recordarClave: false,
+            recordarClave: true,
             show: false,
             alert: false,
             msg: 'Usuario o password Incorrecto!!!'
@@ -25,6 +25,7 @@ class login extends Component {
 
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.toggleChange = this.toggleChange.bind(this);
 
     }
 
@@ -36,48 +37,60 @@ class login extends Component {
         this.setState({ [event.target.id]: event.target.value });
     };
 
-    toggleChange = () => {
+    toggleChange = (event) => {
         this.setState({
-            recordarClave: !this.state.recordarClave
+            recordarClave: event.target.checked
         });
     }
 
     handleSubmit = event => {
-        event.preventDefault();
-        Progress.show();
-        this.setState({ loading: true });
-        user.login(this.state.username, this.state.password)
-            .then(response => response.data)
-            .then((data) => {
-                if (data.code === 0) {
 
-                    setTimeout(() => {
-                        localStorage.setItem('token', `Bearer ${data.token}`);
-                        localStorage.setItem('userId', data.userId);
-                        localStorage.setItem('nickName', data.nickName);
-                        localStorage.setItem('group', data.groupId);
+        try {
+
+            event.preventDefault();
+            if (this.state.username !== null && this.state.password !== null) {
+
+                Progress.show();
+                this.setState({ loading: true });
+                user.login(this.state.username, this.state.password)
+                    .then(response => response.data)
+                    .then((data) => {
+                        if (data.code === 0) {
+
+                            setTimeout(() => {
+                                localStorage.setItem('token', `Bearer ${data.token}`);
+                                localStorage.setItem('userId', data.userId);
+                                localStorage.setItem('nickName', data.nickName);
+                                localStorage.setItem('group', data.groupId);
+                                this.setState({ loading: false });
+                                this.setState(() => ({
+                                    loginAuth: true
+                                }));
+                            }, 5000);
+
+
+                        } else {
+                            this.setState({ loading: false });
+                            swal("Información!", "Usuario o clave incorrecto!", "info");
+                        }
+                    })
+                    .catch((err) => {
+                        Progress.hide();
                         this.setState({ loading: false });
-                        this.setState(() => ({
-                            loginAuth: true
-                        }));
-                    }, 5000);
+                        swal("Información!", "El usuario o la clave no son correctos!", "info");
+                    });
 
 
-                } else {
-                    this.setState({ loading: false });
-                    swal("Información!", "Usuario o clave incorrecto!", "info");
-                }
-            })
-            .catch((err) => {
-                Progress.hide();
-                this.setState({ loading: false });
-                swal("Información!", "El usuario o la clave no son correctos!", "info");
-            });
+            } else {
+                swal("Información!", "Los campos usuario y password son requeridos!", "info");
+            }
 
+
+        } catch (error) {
+            console.log(error);
+        }
 
     };
-
-
 
     render() {
         const { loading } = this.state;
@@ -97,30 +110,32 @@ class login extends Component {
                 <div className="col-sm-9 col-md-7 col-lg-5 mx-auto">
                     <div className="card card-signin my-5">
                         <div className="card-body cardLogin">
-                            <h1 className="card-title text-center titulo">Front</h1>
+                            <h1 className="card-title text-center titulo">Javer</h1>
                             <br></br>
                             <h5 className="card-title text-center">Iniciar Sesión</h5>
-                            <form className="form-signin" onSubmit={this.handleSubmit}>
-                                <div className="input-group mb-2 mr-sm-2">
-                                    <div className="input-group-prepend">
-                                        <div className="input-group-text"><i className="fa fa-user" /></div>
-                                    </div>
-                                    <input type="text" id="username" className="form-control" placeholder="usuario" value={this.state.username} onChange={this.handleChange} />
+                            <div className="input-group mb-2 mr-sm-2">
+                                <div className="input-group-prepend">
+                                    <div className="input-group-text"><i className="fa fa-user" /></div>
                                 </div>
-                                <div className="input-group mb-2 mr-sm-2">
-                                    <div className="input-group-prepend">
-                                        <div className="input-group-text"><i className="fa fa-lock" /></div>
-                                    </div>
-                                    <input type="password" id="password" className="form-control" placeholder="contraseña" value={this.state.password} onChange={this.handleChange} />
+                                <input type="text" id="username" className="form-control" placeholder="usuario" value={this.state.username} onChange={this.handleChange} />
+                            </div>
+                            <div className="input-group mb-2 mr-sm-2">
+                                <div className="input-group-prepend">
+                                    <div className="input-group-text"><i className="fa fa-lock" /></div>
                                 </div>
-                                <div className="custom-control custom-checkbox mb-3">
-                                    <input type="checkbox" className="custom-control-input" id="recordarClave" checked={this.state.recordarClave} value={this.state.recordarClave} onChange={this.toggleChange} />
-                                    <label className="custom-control-label">Recordarme</label>
-                                    <label className="custom-control-label olvidoClave">¿Olvidaste tu contraseña?</label>
-                                </div>
-                                <button className="btn btn-lg btn-primary btn-block" type="submit" disabled={!this.validateForm()}>Iniciar Sesión</button>
-                                <hr className="my-4"></hr>
-                            </form>
+                                <input type="password" id="password" className="form-control" placeholder="contraseña" value={this.state.password} onChange={this.handleChange} />
+                            </div>
+                            <div className="form-group row olvidoPass">
+                                <input className="form-check-input"
+                                    type="checkbox"
+                                    id="recordarClave"
+                                    checked={this.state.recordarClave}
+                                    onChange={this.toggleChange} />
+                                <span>Recordarme</span>
+                                <a href="/RecuperarClaveUsuario" className="active olvidoClave">¿Olvidaste tu contraseña?</a>
+                            </div>
+                            <button type="button" id="btnLogin" className="btn btn-lg btn-primary btn-block" onClick={this.handleSubmit}>Iniciar Sesión</button>
+                            <hr className="my-4"></hr>
                         </div>
                     </div>
                 </div>

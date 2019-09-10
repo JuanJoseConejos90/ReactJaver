@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { BrowserRouter as Router, Link, Route,Redirect } from 'react-router-dom';
+import { BrowserRouter as Router, Link, Route } from 'react-router-dom';
 import usuarios from './../usuarios/usuarios';
 import usuarioInfo from './../usuarios/usuarioInfo';
 import crearUsuario from './../usuarios/crearUsuario';
@@ -89,7 +89,7 @@ class home extends Component {
 
     render() {
         if (this.state.config) {
-            return <Redirect to="./usuarioInfo" />
+            return  <Link to="./usuarioInfo"></Link>
         }
         return (<Router>
             <header>
@@ -105,9 +105,9 @@ class home extends Component {
                             <Dropdown.Menu>
                                 <Dropdown.Item href="#/action-1">Detalle</Dropdown.Item>
                                 <Dropdown.Divider />
-                                <Dropdown.Item href="#" onClick={this.getInfoUser}><i className="fa fa-user"></i><span className="toolMenu">Mi cuenta</span></Dropdown.Item>
-                                <Dropdown.Item href="#" onClick={this.getInfoUser}><i className="fa fa-cog"></i><span className="toolMenu">Configuración</span></Dropdown.Item>
-                                <Dropdown.Item href="#" onClick={this.getInfoUser}><i className="fa fa-cog"></i><span className="toolMenu">Cambiar Clave</span></Dropdown.Item>
+                                <Dropdown.Item href="#"><i className="fa fa-user"></i><span className="toolMenu"> <Link to="./usuarioInfo">Mi cuenta</Link></span></Dropdown.Item>
+                                <Dropdown.Item href="#"><i className="fa fa-cog"></i><span className="toolMenu"><Link to="./usuarioInfo">Configuración</Link></span></Dropdown.Item>
+                                <Dropdown.Item href="#"><i className="fa fa-cog"></i><span className="toolMenu"><Link to="./usuarioInfo">Cambiar Clave</Link></span></Dropdown.Item>
                                 <Dropdown.Item href="#" onClick={this.logout}><i className="fa fa-sign-out-alt"></i><span className="toolMenu">Salir</span></Dropdown.Item>
                             </Dropdown.Menu>
                         </Dropdown>

@@ -8,29 +8,53 @@ class Autocomplete extends Component {
 
     static defaultProps = {
         suggestions: []
+
     };
 
     constructor(props) {
         super(props);
-
-        const { userInput } = props;
-        console.log(props);
         this.state = {
             activeSuggestion: 0,
             filteredSuggestions: [],
             showSuggestions: false,
-            userInput: userInput
-
+            userInput: ''
         };
+
+        this.search = this.search.bind(this)
+    }
+
+    componentDidMount() {
+        this.setState({
+            userInput: this.props.userInput
+        });
+      }
+
+
+
+    search = (event) => {
+
+        try {
+
+            event.preventDefault();
+            const { suggestions } = this.props;
+            const filteredSuggestions = suggestions.filter(suggestion => suggestion.Name.toLowerCase().indexOf('') > -1);
+            this.setState({
+                showSuggestions: true,
+                userInput: 'A',
+                filteredSuggestions
+            });
+
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     onChange = e => {
+
+        this.setState({ userInput: e.currentTarget.value });
         const { suggestions } = this.props;
         const userInput = e.currentTarget.value;
-        const filteredSuggestions = suggestions.filter(
-            suggestion =>
-                suggestion.Name.toLowerCase().indexOf(userInput.toLowerCase()) > -1
-        );
+        const filteredSuggestions = suggestions.filter(suggestion => suggestion.Name.toLowerCase().indexOf(userInput.toLowerCase()) > -1);
 
         this.setState({
             activeSuggestion: 0,
@@ -41,6 +65,7 @@ class Autocomplete extends Component {
     };
 
     onClick = e => {
+
         this.setState({
             activeSuggestion: 0,
             filteredSuggestions: [],
@@ -67,6 +92,9 @@ class Autocomplete extends Component {
                 break;
             case "job":
                 this.props.getJob(e.currentTarget.id);
+                break;
+            case "user":
+                this.props.getUser(e.currentTarget.id);
                 break;
             default:
                 break;
@@ -99,18 +127,12 @@ class Autocomplete extends Component {
         }
     };
 
-
     setInput() {
         this.setState({ userInput: this.props.userInput });
     }
 
-
-
     render() {
-        const {
-            onChange,
-            onClick,
-            onKeyDown,
+        const {onChange,onClick,onKeyDown,
             state: {
                 activeSuggestion,
                 filteredSuggestions,
@@ -120,8 +142,6 @@ class Autocomplete extends Component {
         } = this;
 
         let suggestionsListComponent;
-
-
 
         if (showSuggestions && userInput) {
             if (filteredSuggestions.length) {
@@ -154,7 +174,7 @@ class Autocomplete extends Component {
         return (
             <Fragment>
                 <div className="input-group mb-3 companysSearch">
-                    <div className="input-group-prepend" data-type="searchFilters">
+                    <div className="input-group-prepend" data-type="searchFilters" onClick={this.search}>
                         <span className="input-group-text" id="basic-addon1"><i className="fa fa-search"></i></span>
                     </div>
                     <input
@@ -164,7 +184,7 @@ class Autocomplete extends Component {
                         placeholder={this.props.placeholder}
                         onChange={onChange}
                         onKeyDown={onKeyDown}
-                        value={this.state.userInput}
+                        value={this.state.userInput || ''}
                     />
                 </div>
                 {suggestionsListComponent}

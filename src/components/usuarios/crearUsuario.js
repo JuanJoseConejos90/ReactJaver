@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
+import Button from 'react-bootstrap/Button';
+import ButtonToolbar from 'react-bootstrap/ButtonToolbar';
 import Breadcrum from './../ui/Breadcrum';
 import Autocomplete from './../ui/Autocomplete';
-import Progress from "react-progress-2";
 import { userService as user } from './../../services/user.services';
 import { ClassicSpinner } from "react-spinners-kit";
 import config from './../../config';
@@ -33,32 +34,39 @@ class crearUsuario extends Component {
             department: '',
             group: '',
             job: '',
+            user: '',
+            vip: '',
             suggestionscompanys: [],
             suggestionslocations: [],
             suggestionsrols: [],
             suggestionsdepartments: [],
             suggestionsgroups: [],
             suggestionsJobs: [],
+            suggestionsUsers: [],
             placeholderCompanys: 'Compañias',
             placeholderLocations: 'Locaciones',
             placeholderRols: 'Roles',
             placeholderDepartment: 'Departamento',
             placeholderGroup: 'Grupo',
             placeholderJob: 'Puesto',
+            placeholderUser: 'Usuarios',
             idCompanys: 'idCompany',
             idLocations: 'idLocation',
             idRols: 'idRol',
             idDepartment: 'idDepartment',
             idGroup: 'idGroup',
             idJob: 'idjob',
+            idUser: 'idUser',
             typeCompany: 'company',
             typeLocation: 'location',
             typeRol: 'rol',
             typeDepartment: 'department',
             typeGroup: 'group',
             typeJob: 'job',
+            typeUser: 'user',
             alert: false,
             loading: false,
+            redirectUsuarios: false,
             msg: '',
             formErrors: {
                 userName: "",
@@ -78,6 +86,8 @@ class crearUsuario extends Component {
         this.handleChange = this.handleChange.bind(this);
         this.handleSumit = this.handleSumit.bind(this);
         this.handleChangeSelectgender = this.handleChangeSelectgender.bind(this);
+        this.toggleState = this.toggleState.bind(this);
+        this.redirect = this.redirect.bind(this);
     }
 
     componentDidMount() {
@@ -88,6 +98,84 @@ class crearUsuario extends Component {
             this.getAllDepartments();
             this.getAllGroup();
             this.getAllJobs();
+            this.getAllUsers();
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    redirect = event => {
+
+        try {
+
+            event.preventDefault();
+            this.setState(() => ({
+                redirectUsuarios: true
+            }));
+
+        } catch (error) {
+            console.log(error)
+        }
+
+
+    }
+
+    toggleState = (event) => {
+
+        try {
+
+            this.setState({
+                vip: event.target.checked
+            });
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    getAllUsers() {
+        try {
+
+            user
+                .getusers()
+                .then(response => response.data)
+                .then(data => {
+                    if (data.code === 0) {
+                        this.suggestionsUsersFilters(data.users);
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                });
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    suggestionsUsersFilters(data) {
+
+        try {
+
+            if (data.length > 0) {
+                let userId = localStorage.getItem('userId');
+                let array = [];
+                data.map((user, index) => {
+                    var userData = {
+                        Id: user.userId,
+                        Name: user.firstName + ' ' + user.lastName
+                    }
+                    if (userId !== userData.Id) {
+                        array.push(userData);
+                    }
+
+                    return null;
+
+                });
+
+                this.setState({ suggestionsUsers: array });
+            }
 
         } catch (error) {
             console.log(error);
@@ -401,7 +489,18 @@ class crearUsuario extends Component {
 
         try {
 
-            this.setState({ job: job })
+            this.setState({ job: job });
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    getUser = (user) => {
+
+        try {
+
+            this.setState({ user: user });
 
         } catch (error) {
             console.log(error);
@@ -417,12 +516,13 @@ class crearUsuario extends Component {
             event.preventDefault();
             if (this.checkValidForm()) {
                 let userCreated = localStorage.getItem('nickName');
+                let vip = (this.state.vip) ? "A" : 'I';
                 this.setState({ loading: true });
-                user.createdUser(this.state.userName, this.state.firstName, this.state.lastName, "INTEL", null, 1,
+                user.createdUser(this.state.userName, this.state.firstName, this.state.lastName, "INTEL", null, parseInt(this.state.user),
                     parseInt(this.state.department), 1, parseInt(this.state.location), parseInt(this.state.company), this.state.businessPhone,
-                    this.state.homePhone, this.state.mobilePhone, this.state.email, this.state.gender,
-                    userCreated, config.date, userCreated, config.date, "HH:MM:SS", "HH:MM:SS", this.state.pass, config.state, config.state, config.state, parseInt(this.state.rol),
-                    parseInt(this.state.group), config.state, parseInt(this.state.job))
+                    this.state.homePhone, this.state.mobilePhone, this.state.email, this.state.gender, userCreated, config.date, userCreated,
+                    config.date, config.timeZoneFormat, config.timeZone, this.state.pass, vip, config.state, config.state,
+                    parseInt(this.state.rol), parseInt(this.state.group), config.state, parseInt(this.state.job))
                     .then(response => response.data)
                     .then((data) => {
                         if (data.code === 0) {
@@ -432,7 +532,7 @@ class crearUsuario extends Component {
                                 this.resetForms();
                                 this.clearSuggestions();
                                 this.setState({ loading: false });
-                            }, 5000);
+                            }, config.timer);
                         } else {
                             swal("Información!", "Error en la creación de usuario!", "error");
                             this.setState({ loading: false });
@@ -582,6 +682,9 @@ class crearUsuario extends Component {
     render() {
         const { formErrors } = this.state;
         const { loading } = this.state;
+        if (this.state.redirectUsuarios) {
+            return <Redirect from="/crearUsuario" to="/usuarios" exact />
+        }
         return (
             <div className="container-fluid" data-panel="containerCreatedUsers">
                 <div className="row loading">
@@ -596,21 +699,24 @@ class crearUsuario extends Component {
                         <Breadcrum inicio={this.state.inicio} modulo={this.state.modulo} componente={this.state.componente} />
                     </div>
                     <div className="col-12">
-                        <div className="card">
-                            <div className="card-header tittleContent">
-                                <div className="row">
-                                    <div className="col-10">
-                                        <h2>Crear Usuario</h2>
-                                    </div>
-                                    <div className="col-2 pull-right">
-                                        <button className="btn btn-primary"><Link to="./usuarios">Cancelar</Link></button>
+                        <form onSubmit={this.handleSumit} id="formData">
+                            <div className="card">
+                                <div className="card-header tittleContent">
+                                    <div className="row">
+                                        <div className="col-10">
+                                            <h2>Crear Usuario</h2>
+                                        </div>
+                                        <div className="col-2 pull-right">
+                                            <ButtonToolbar>
+                                                <Button type="submit" variant="primary" size="sm">Crear</Button>
+                                                <Button variant="light" size="sm" onClick={this.redirect}>Cancelar</Button>
+                                            </ButtonToolbar>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div className="card-body">
-                                <div className="row">
-                                    <div className="container">
-                                        <form onSubmit={this.handleSumit} id="formData">
+                                <div className="card-body">
+                                    <div className="row">
+                                        <div className="container">
 
                                             <div className="row">
                                                 <div className="col-4">
@@ -745,7 +851,7 @@ class crearUsuario extends Component {
                                                         <label htmlFor="genero" className="col-4 col-form-label">Genero:</label>
                                                         <div className="col-8">
                                                             <select className="form-control" id="genero" onChange={this.handleChangeSelectgender}>
-                                                                <option value="" selected>Seleccione</option>
+                                                                <option value="">Seleccione</option>
                                                                 <option value="M">Maculino</option>
                                                                 <option value="F">Femenino</option>
                                                             </select>
@@ -792,21 +898,39 @@ class crearUsuario extends Component {
                                             </div>
 
                                             <div className="row">
-                                                <div className="col-12">
-                                                    <button type="submit" className="btn btn-primary btn-lg btn-block">Crear</button>
+                                                <div className="col-4">
+                                                    <div className="form-group row">
+                                                        <label htmlFor="businessPhone" className="col-4 col-form-label">Jefe:</label>
+                                                        <div className="col-8">
+                                                            <Autocomplete suggestions={this.state.suggestionsUsers} getUser={this.getUser} type={this.state.typeUser} placeholder={this.state.placeholderUser} idComponent={this.state.idUser} />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="col-4">
+                                                    <div className="form-group row">
+                                                        <label htmlFor="businessPhone" className="col-4 col-form-label">Vip: </label>
+                                                        <span className="spanVIP">
+                                                            <input className="form-check-input"
+                                                                type="checkbox"
+                                                                id="checkActive"
+                                                                onClick={(event) => this.toggleState(event)}
+                                                                defaultChecked={this.state.vip}
+                                                                value={this.state.vip} />
+                                                        </span>
+
+                                                    </div>
                                                 </div>
                                             </div>
 
-                                        </form>
+                                        </div>
                                     </div>
                                 </div>
+                                <div className="card-footer">
+                                </div>
                             </div>
-                            <div className="card-footer">
-                            </div>
-                        </div>
+                        </form>
                     </div>
                 </div>
-                <Progress.Component style={{ background: 'orange' }} thumbStyle={{ background: 'green' }} />
             </div >
         );
     }

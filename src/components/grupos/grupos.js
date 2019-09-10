@@ -12,6 +12,10 @@ import { ClassicSpinner } from "react-spinners-kit";
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 
+const $ = require('jquery');
+$.DataTable = require('datatables.net');
+
+
 class grupos extends Component {
 
     constructor(props) {
@@ -33,9 +37,26 @@ class grupos extends Component {
 
     }
 
-    componentDidMount() {
+    async  componentDidMount() {
         try {
-            this.getAllGroups();
+            await  this.getAllGroups();
+            this.$el = $(this.el);
+            this.$el.DataTable({
+                columns: [
+                    { title: "groupId" },
+                    { title: "groupName" },
+                    { title: "description" },
+                    { title: "state" },
+                    { title: "manager" },
+                    { title: "parent" },
+                    { title: "rol" },
+                    { title: "createdBy" },
+                    { title: "created" },
+                    { title: "updates" },
+                    { title: "updateBy" },
+                    { title: "updated" }
+                ]
+            });
 
         } catch (error) {
             console.log(error);
@@ -228,7 +249,8 @@ class grupos extends Component {
                             </div>
 
                             <div className="row">
-                                <table ref={this.table} className="table table-striped base-table" key="tableUser">
+
+                                <table ref={this.table} id="dataTable" className="table table-striped base-table" key="tableUser">
                                     <thead>
                                         <tr key="thTable">{this.renderTableHeader()}</tr>
                                     </thead>
@@ -236,6 +258,7 @@ class grupos extends Component {
                                         {this.renderTableData()}
                                     </tbody>
                                 </table>
+
                             </div>
 
                             <div className="row">

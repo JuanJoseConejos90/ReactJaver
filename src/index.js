@@ -6,6 +6,8 @@ import home from './components/home/home';
 import notfound from './helpers/notFound';
 import usuarios from './components/usuarios/usuarios';
 import usuarioInfo from './components/usuarios/usuarioInfo';
+import RecuperarClaveUsuario from './components/login/RecuperarClaveUsuario';
+import confimPass from './components/login/confimPass';
 import './index.scss';
 import * as serviceWorker from './serviceWorker';
 
@@ -14,6 +16,8 @@ const routing = (
     <BrowserRouter>
         <Switch>
             <Route exact path="/" component={login} />
+            <Route exact path="/RecuperarClaveUsuario" component={RecuperarClaveUsuario} />
+            <Route exact path="/confimPass/:token" component={confimPass} />
             <Route exact path="/home" component={home} />
             <Route exact path="/usuarios" component={usuarios} />
             <Route exact path="/usuarioInfo" component={usuarioInfo} />

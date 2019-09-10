@@ -23,8 +23,16 @@ code {
     font-family: "arial"source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
 }
 
+#btnLogin {
+    cursor: pointer !important;
+}
 
-.loading{
+#btnRecPass {
+    cursor: pointer !important;
+}
+
+
+.loading {
     z-index: 2000000;
     position: fixed;
     height: 90px;
@@ -58,7 +66,17 @@ h2 {
     margin-left: 40px !important;
     color: $Color-blue;
     font-weight: bold;
-    cursor: pointer;
+    cursor: pointer !important;
+
+    :hover,
+    :active,
+    :focus {
+        color: #3071a9 !important;
+    }
+}
+
+.olvidoPass {
+    margin-left: 25px !important;
 }
 
 .mb-2,
@@ -250,6 +268,351 @@ a.article:hover {
 /* ---------------------------------------------------
     PANELS COMPONENT
 ----------------------------------------------------- */
+[data-panel='containerConfirmPass'] {
+
+    margin-top: 50px !important;
+
+    img {
+        border: none;
+        -ms-interpolation-mode: bicubic;
+        max-width: 100%;
+    }
+
+    body {
+        background-color: #f6f6f6;
+        font-family: sans-serif;
+        -webkit-font-smoothing: antialiased;
+        font-size: 14px;
+        line-height: 1.4;
+        margin: 0;
+        padding: 0;
+        -ms-text-size-adjust: 100%;
+        -webkit-text-size-adjust: 100%;
+    }
+
+    table {
+        border-collapse: separate;
+        width: 100%;
+    }
+
+    table td {
+        font-family: sans-serif;
+        font-size: 14px;
+        vertical-align: top;
+    }
+
+    .body {
+        background-color: #f6f6f6;
+        width: 100%;
+    }
+
+    .container {
+        display: block;
+        margin: 0 auto !important;
+        max-width: 580px;
+        padding: 10px;
+        width: 580px;
+    }
+
+    .content {
+        box-sizing: border-box;
+        display: block;
+        margin: 0 auto;
+        max-width: 580px;
+        padding: 10px;
+    }
+
+    .main {
+        background: #ffffff;
+        border-radius: 3px;
+        width: 100%;
+    }
+
+    .wrapper {
+        box-sizing: border-box;
+        padding: 20px;
+    }
+
+    .content-block {
+        padding-bottom: 10px;
+        padding-top: 10px;
+    }
+
+    .footer {
+        clear: both;
+        margin-top: 10px;
+        text-align: center;
+        width: 100%;
+    }
+
+    .footer td,
+    .footer p,
+    .footer span,
+    .footer a {
+        color: #999999;
+        font-size: 12px;
+        text-align: center;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+        color: #000000;
+        font-family: sans-serif;
+        font-weight: 400;
+        line-height: 1.4;
+        margin: 0;
+        margin-bottom: 30px;
+    }
+
+    h1 {
+        font-size: 35px;
+        font-weight: 300;
+        text-align: center;
+        text-transform: capitalize;
+    }
+
+    p,
+    ul,
+    ol {
+        font-family: sans-serif;
+        font-size: 14px;
+        font-weight: normal;
+        margin: 0;
+        margin-bottom: 15px;
+    }
+
+    p li,
+    ul li,
+    ol li {
+        list-style-position: inside;
+        margin-left: 5px;
+    }
+
+    a {
+        color: #3498db;
+        text-decoration: underline;
+    }
+
+    .btn {
+        box-sizing: border-box;
+        width: 100%;
+    }
+
+    .btn>tbody>tr>td {
+        padding-bottom: 15px;
+    }
+
+    .btn table {
+        width: auto;
+    }
+
+    .btn table td {
+        background-color: #ffffff;
+        border-radius: 5px;
+        text-align: center;
+    }
+
+    .btn a {
+        background-color: #ffffff;
+        border: solid 1px #3498db;
+        border-radius: 5px;
+        box-sizing: border-box;
+        color: #3498db;
+        cursor: pointer;
+        display: inline-block;
+        font-size: 14px;
+        font-weight: bold;
+        margin: 0;
+        padding: 12px 25px;
+        text-decoration: none;
+        text-transform: capitalize;
+    }
+
+    .btn-primary table td {
+        background-color: #3498db;
+    }
+
+    .btn-primary a {
+        background-color: #3498db;
+        border-color: #3498db;
+        color: #ffffff;
+    }
+
+    .last {
+        margin-bottom: 0;
+    }
+
+    .first {
+        margin-top: 0;
+    }
+
+    .align-center {
+        text-align: center;
+    }
+
+    .align-right {
+        text-align: right;
+    }
+
+    .align-left {
+        text-align: left;
+    }
+
+    .clear {
+        clear: both;
+    }
+
+    .mt0 {
+        margin-top: 0;
+    }
+
+    .mb0 {
+        margin-bottom: 0;
+    }
+
+    .preheader {
+        color: transparent;
+        display: none;
+        height: 0;
+        max-height: 0;
+        max-width: 0;
+        opacity: 0;
+        overflow: hidden;
+        visibility: hidden;
+        width: 0;
+    }
+
+    .powered-by a {
+        text-decoration: none;
+    }
+
+    hr {
+        border: 0;
+        border-bottom: 1px solid #f6f6f6;
+        margin: 20px 0;
+    }
+
+    @media only screen and (max-width: 620px) {
+        table[class=body] h1 {
+            font-size: 28px !important;
+            margin-bottom: 10px !important;
+        }
+
+        table[class=body] p,
+        table[class=body] ul,
+        table[class=body] ol,
+        table[class=body] td,
+        table[class=body] span,
+        table[class=body] a {
+            font-size: 16px !important;
+        }
+
+        table[class=body] .wrapper,
+        table[class=body] .article {
+            padding: 10px !important;
+        }
+
+        table[class=body] .content {
+            padding: 0 !important;
+        }
+
+        table[class=body] .container {
+            padding: 0 !important;
+            width: 100% !important;
+        }
+
+        table[class=body] .main {
+            border-left-width: 0 !important;
+            border-radius: 0 !important;
+            border-right-width: 0 !important;
+        }
+
+        table[class=body] .btn table {
+            width: 100% !important;
+        }
+
+        table[class=body] .btn a {
+            width: 100% !important;
+        }
+
+        table[class=body] .img-responsive {
+            height: auto !important;
+            max-width: 100% !important;
+            width: auto !important;
+        }
+    }
+
+    @media all {
+        .ExternalClass {
+            width: 100%;
+        }
+
+        .ExternalClass,
+        .ExternalClass p,
+        .ExternalClass span,
+        .ExternalClass font,
+        .ExternalClass td,
+        .ExternalClass div {
+            line-height: 100%;
+        }
+
+        .apple-link a {
+            color: inherit !important;
+            font-family: inherit !important;
+            font-size: inherit !important;
+            font-weight: inherit !important;
+            line-height: inherit !important;
+            text-decoration: none !important;
+        }
+
+        #MessageViewBody a {
+            color: inherit;
+            text-decoration: none;
+            font-size: inherit;
+            font-family: inherit;
+            font-weight: inherit;
+            line-height: inherit;
+        }
+
+        .btn-primary table td:hover {
+            background-color: #34495e !important;
+        }
+
+        .btn-primary a:hover {
+            background-color: #34495e !important;
+            border-color: #34495e !important;
+        }
+    }
+
+}
+
+[data-panel='containerRecuperarPass'] {
+    margin-top: 110px !important;
+
+    .card {
+        .card-header {
+            .titulo {
+                font-weight: bold !important;
+                font-size: 2em;
+            }
+        }
+
+        .card-body {
+            text-align: center;
+        }
+
+        .card-footer {
+            .btnFoot {
+                margin-left: 10px;
+                margin-right: 10px;
+            }
+        }
+
+
+    }
+}
 
 [data-panel='containerAvatar'] {
 
@@ -259,6 +622,10 @@ a.article:hover {
     .card-footer {
         text-align: center;
         background-color: white;
+
+        .btnActualiza {
+            padding-left: 30px !important;
+        }
 
         .nameAvatar {
             font-size: 23px;
@@ -326,7 +693,44 @@ a.article:hover {
             font-weight: bold;
             padding-left: 5px;
         }
+
+        .companysSearch {
+            margin-bottom: 0rem !important;
+        }
+
+        .no-suggestions {
+            color: #999;
+            font-weight: bold;
+            padding: 0.5rem;
+        }
+
+        .suggestions {
+            border: 1px solid #999;
+            border-top-width: 0;
+            list-style: none;
+            margin-top: 0;
+            max-height: 150px;
+            overflow-y: auto;
+            padding-left: 0;
+        }
+
+        .suggestions li {
+            padding: 0.5rem;
+        }
+
+        .suggestion-active,
+        .suggestions li:hover {
+            background-color: $Color-blue;
+            color: white;
+            cursor: pointer;
+        }
+
+        .suggestions li:not(:last-of-type) {
+            border-bottom: 1px solid #999;
+        }
     }
+
+
 
     #imgAvatar {
         text-align: center !important;
@@ -403,6 +807,33 @@ a.article:hover {
         padding-right: 5px;
     }
 
+    .pagBTN {
+        transition: all .3s;
+        border: 1px solid #ddd;
+        padding: 8px 16px;
+        text-decoration: none;
+        border-radius: 5px;
+        font-size: 15px;
+
+        .active {
+            background-color: $Color-blue !important;
+            ;
+            color: #fff;
+        }
+
+        :not(.active) {
+            background-color: transparent;
+        }
+    }
+
+    .pagBTN:not(.active) {
+        background-color: transparent;
+    }
+
+    .pagBTN:hover:not(.active) {
+        background-color: #ddd;
+    }
+
     .btncog,
     .btnfilter {
         color: $Color-blue !important;
@@ -435,7 +866,7 @@ a.article:hover {
         text-align: left !important;
     }
 
-    .operador{
+    .operador {
         font-size: 12px !important;
         font-weight: bold;
         height: 38px;
@@ -477,6 +908,10 @@ a.article:hover {
             border: 1px solid red !important;
             border-radius: .25rem;
             transition: border-color .15s
+        }
+
+        .spanVIP {
+            margin-top: 10px !important;
         }
 
         input.error:focus {
@@ -697,6 +1132,18 @@ a.article:hover {
     cursor: pointer !important;
 }
 
+.searchInput {
+    cursor: pointer !important;
+
+    :hover {
+        cursor: pointer !important;
+    }
+
+    :active {
+        cursor: pointer !important;
+    }
+}
+
 [data-panel='containerCompanys'] {
 
     .card,
@@ -754,7 +1201,7 @@ a.article:hover {
         text-align: left !important;
     }
 
-    .operador{
+    .operador {
         font-size: 12px !important;
         font-weight: bold;
         height: 38px;
@@ -818,7 +1265,7 @@ a.article:hover {
         text-align: left !important;
     }
 
-    .operador{
+    .operador {
         font-size: 12px !important;
         font-weight: bold;
         height: 38px;
@@ -843,6 +1290,10 @@ a.article:hover {
             padding-left: 30px;
             font-weight: bold;
         }
+    }
+
+    #example_wrapper {
+        width: 100% !important;
     }
 
     .toolBarBtns {
@@ -882,7 +1333,7 @@ a.article:hover {
         text-align: left !important;
     }
 
-    .operador{
+    .operador {
         font-size: 12px !important;
         font-weight: bold;
         height: 38px;
@@ -946,7 +1397,7 @@ a.article:hover {
         text-align: left !important;
     }
 
-    .operador{
+    .operador {
         font-size: 12px !important;
         font-weight: bold;
         height: 38px;
@@ -1010,7 +1461,7 @@ a.article:hover {
         text-align: left !important;
     }
 
-    .operador{
+    .operador {
         font-size: 12px !important;
         font-weight: bold;
         height: 38px;
@@ -1052,6 +1503,55 @@ a.article:hover {
     font-weight: bold;
     text-shadow: none;
     white-space: nowrap;
+    cursor: pointer !important;
+
+
+    span,
+    span {
+        display: block;
+        cursor: pointer !important;
+        width: 100%;
+    }
+
+    span.sort-by {
+        padding-right: 18px;
+        position: relative;
+    }
+
+    span.sort-by:hover {
+        color: $Color-blue !important;
+    }
+
+    span.sort-by:before,
+    span.sort-by:after {
+        border: 4px solid transparent;
+        content: "";
+        display: block;
+        height: 0;
+        right: 5px;
+        top: 50%;
+        position: absolute;
+        width: 0;
+
+        :hover {
+            color: $Color-blue !important;
+        }
+    }
+
+    span.sort-by:before {
+        border-bottom-color: #666;
+        margin-top: -9px;
+
+
+    }
+
+    span.sort-by:after {
+        border-top-color: #666;
+        margin-top: 1px;
+    }
+
+
+
 }
 
 .base-table tbody td {
@@ -1293,6 +1793,8 @@ a.article:hover {
             }
         }
     }
+
+
 
     footer {
         padding-left: 20px;
